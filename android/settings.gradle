@@ -1,0 +1,3 @@
+rootProject.name = 'lit_ui'
+
+include ':app'
