@@ -1,4 +1,5 @@
 {
-  "name": "lit_ui",
-  "displayName": "lit_ui"
+  "expo": {
+    "sdkVersion": "27.0.0"
+  }
 }
