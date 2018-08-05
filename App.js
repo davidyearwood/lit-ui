@@ -3,7 +3,7 @@ import React from 'react';
 import { Platform } from 'react-native'
 import { connect, Provider } from 'react-redux'
 
-import { setLocation } from './app/actions/actions'
+import { setRegion } from './app/actions/actions'
 import store from './app/stores/store'
 
 
@@ -11,7 +11,7 @@ const mapStateToProps = state => state
 
 
 const mapDispatchToProps = dispatch => ({
-    setLocation: location => dispatch(setLocation(location))
+    setRegion: region => dispatch(setRegion(region))
 })
 
 
@@ -42,21 +42,20 @@ class ConnectedApp extends React.Component {
         }
 
         const location = await Location.getCurrentPositionAsync()
-        this.props.setLocation(location)
+        const region = {
+            latitude: location.coords.latitude,
+            longitude: location.coords.longitude,
+            latitudeDelta: 0.0922,
+            longitudeDelta: 0.0421,
+        }
+        this.props.setRegion(region)
     }
 
     render() {
-        const location = this.props.location
-        console.log(location)
         return (
             <MapView
                 style={{ flex: 1}}
-                initialRegion={{
-                    latitude: location.coords.latitude,
-                    longitude: location.coords.longitude,
-                    latitudeDelta: 0.0922,
-                    longitudeDelta: 0.0421
-                }}
+                region={this.props.region}
             />
         );
     }

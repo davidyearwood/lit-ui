@@ -1,7 +1,7 @@
 import Constants from '../constants/constants'
 
 
-export const setLocation = location => ({
-    type: Constants.SET_LOCATION,
-    payload: location
+export const setRegion = region => ({
+    type: Constants.SET_REGION,
+    payload: region
 })
