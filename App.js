@@ -1,20 +1,24 @@
+import { Constants, Location, MapView, Permissions } from 'expo';
 import React from 'react';
 import { Platform } from 'react-native'
-import { Constants, Location, MapView, Permissions } from 'expo';
+import { connect, Provider } from 'react-redux'
 
-export default class App extends React.Component {
+import { setLocation } from './app/actions/actions'
+import store from './app/stores/store'
 
-    constructor () {
-        super()
-        this.state = {
-            location: {
-                coords: {
-                    latitude: 37.78825,
-                    longitude: -122.4324,
-                }
-            },
-            errorMessage: null,
-        }
+
+const mapStateToProps = state => state
+
+
+const mapDispatchToProps = dispatch => ({
+    setLocation: location => dispatch(setLocation(location))
+})
+
+
+class ConnectedApp extends React.Component {
+
+    constructor (props) {
+        super(props)
     }
 
     componentWillMount () {
@@ -37,12 +41,12 @@ export default class App extends React.Component {
             })
         }
 
-        let location = await Location.getCurrentPositionAsync()
-        this.setState({location: location })
+        const location = await Location.getCurrentPositionAsync()
+        this.props.setLocation(location)
     }
 
     render() {
-        const location = this.state.location
+        const location = this.props.location
         console.log(location)
         return (
             <MapView
@@ -57,3 +61,13 @@ export default class App extends React.Component {
         );
     }
 }
+
+
+const App = connect(mapStateToProps, mapDispatchToProps)(ConnectedApp)
+
+
+export default () => (
+    <Provider store={store}>
+        <App/>
+    </Provider>
+)
