@@ -21,16 +21,18 @@ class ConnectedApp extends React.Component {
         super(props)
     }
 
-    componentWillMount () {
-        if (Platform.OS === 'android' && !Constants.isDevice) {
-            this.setState({
-                errorMessage: 'Oops, this will not work'
-            })
-        }
-        else {
-            this._getLocationAsync()
-        }
-    }
+    // Don't delete this function, will be useful in the future.
+    //
+    // componentWillMount () {
+    //     if (Platform.OS === 'android' && !Constants.isDevice) {
+    //         this.setState({
+    //             errorMessage: 'Oops, this will not work'
+    //         })
+    //     }
+    //     else {
+    //         this._getLocationAsync()
+    //     }
+    // }
 
     _getLocationAsync = async () => {
         let { status } = await Permissions.askAsync(Permissions.LOCATION)
@@ -56,6 +58,7 @@ class ConnectedApp extends React.Component {
             <MapView
                 style={{ flex: 1}}
                 region={this.props.region}
+                minZoomLevel={15}
             />
         );
     }
