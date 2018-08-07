@@ -7,6 +7,10 @@ import { setRegion } from './app/actions/actions';
 import store from './app/stores/store';
 
 
+
+const { Marker } = MapView;
+
+
 const mapStateToProps = state => state;
 
 
@@ -51,7 +55,7 @@ class ConnectedApp extends React.Component {
             longitudeDelta: 0.0421,
         };
         this.props.setRegion(region);
-    }
+    };
 
     render() {
         return (
@@ -59,7 +63,19 @@ class ConnectedApp extends React.Component {
                 style={{ flex: 1}}
                 region={this.props.region}
                 minZoomLevel={15}
-            />
+            >
+                {
+                    this.props.places.map (
+                        (place, index) => (
+                            <Marker
+                                key={"marker-" + index}
+                                coordinate={place.location}
+                                title={place.name}
+                            />
+                        )
+                    )
+                }
+            </MapView>
         );
     }
 }

@@ -46,7 +46,7 @@ const initialState = {
             checkedInCount: 44
         }
     ]
-}
+};
 
 
 const rootReducer = (state=initialState, action) => {
@@ -59,7 +59,7 @@ const rootReducer = (state=initialState, action) => {
         default:
             return state;
     }
-}
+};
 
 
 export default rootReducer;
