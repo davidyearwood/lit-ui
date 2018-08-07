@@ -5,6 +5,7 @@ import { connect, Provider } from 'react-redux';
 
 import { setRegion } from './app/actions/actions';
 import store from './app/stores/store';
+import LitMarker from './app/components/litMarker'
 
 
 
@@ -70,8 +71,10 @@ class ConnectedApp extends React.Component {
                             <Marker
                                 key={"marker-" + index}
                                 coordinate={place.location}
-                                title={place.name}
-                            />
+                                title={place.title}
+                            >
+                                <LitMarker litness={place.litness}/>
+                            </Marker>
                         )
                     )
                 }
