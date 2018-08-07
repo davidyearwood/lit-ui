@@ -1,5 +1,4 @@
-import Constants from '../constants/constants'
-
+import Constants from '../constants/constants';
 
 const initialState = {
     region: {
@@ -17,6 +16,7 @@ const initialState = {
             },
             name: "Les Brasseurs du Temps",
             litness: 0,
+            checkedInCount: 44
         },
         {
             location: {
@@ -25,6 +25,7 @@ const initialState = {
             },
             name: "Les vilains garçons",
             litness: 1,
+            checkedInCount: 22
         },
         {
             location: {
@@ -32,7 +33,8 @@ const initialState = {
                 longitude: -75.724651
             },
             name: "Solif Bar à vin",
-            liteness: 3,
+            litness: 3,
+            checkedInCount: 24
         },
         {
             location: {
@@ -40,7 +42,8 @@ const initialState = {
                 longitude: -75.719270
             },
             name: "Le Cellier",
-            liteness: 6,
+            litness: 6,
+            checkedInCount: 44
         }
     ]
 }
@@ -49,11 +52,14 @@ const initialState = {
 const rootReducer = (state=initialState, action) => {
     switch (action.type) {
         case Constants.SET_REGION:
-            return {...state, region: action.payload}
+            return {
+                ...state, 
+                region: action.payload
+            };
         default:
-            return state
+            return state;
     }
 }
 
 
-export default rootReducer
+export default rootReducer;
