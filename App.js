@@ -1,15 +1,11 @@
-import { Constants, Location, MapView, Permissions } from 'expo';
+import { Constants, Location, Permissions } from 'expo';
 import React from 'react';
 import { Platform } from 'react-native';
 import { connect, Provider } from 'react-redux';
 
 import { setRegion } from './app/actions/actions';
 import store from './app/stores/store';
-import LitMarker from './app/components/litMarker'
-
-
-
-const { Marker } = MapView;
+import LitMapView from './app/components/litMapView';
 
 
 const mapStateToProps = state => state;
@@ -60,25 +56,7 @@ class ConnectedApp extends React.Component {
 
     render() {
         return (
-            <MapView
-                style={{ flex: 1}}
-                region={this.props.region}
-                minZoomLevel={15}
-            >
-                {
-                    this.props.places.map (
-                        (place, index) => (
-                            <Marker
-                                key={"marker-" + index}
-                                coordinate={place.location}
-                                title={place.title}
-                            >
-                                <LitMarker litness={place.litness}/>
-                            </Marker>
-                        )
-                    )
-                }
-            </MapView>
+            <LitMapView  region={this.props.region} places={this.props.places}/>
         );
     }
 }
