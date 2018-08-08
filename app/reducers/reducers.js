@@ -1,4 +1,6 @@
 import Constants from '../constants/constants';
+import ViewMode from '../constants/viewMode'
+
 
 const initialState = {
     region: {
@@ -8,6 +10,10 @@ const initialState = {
         longitudeDelta: 0.0421,
     },
     errorMessage: null,
+    viewMode: ViewMode.MAP,
+    info: {
+        name: 'Some Random Name'
+    },
     places: [
         {
             location: {
@@ -51,6 +57,11 @@ const initialState = {
 
 const rootReducer = (state=initialState, action) => {
     switch (action.type) {
+        case Constants.CHANGE_VIEW:
+            return {
+                ...state,
+                viewMode: action.payload
+            };
         case Constants.SET_REGION:
             return {
                 ...state, 

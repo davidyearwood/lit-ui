@@ -1,4 +1,4 @@
 export default {
-    SET_LOCATION: 'SET_LOCATION',
+    CHANGE_VIEW: 'CHANGE_VIEW',
     SET_REGION: 'SET_REGION'
 };
