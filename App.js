@@ -1,6 +1,6 @@
 import { Constants, Location, Permissions } from 'expo';
 import React from 'react';
-import { BackHandler, Platform } from 'react-native';
+import { BackHandler, Platform, View } from 'react-native';
 import { connect, Provider } from 'react-redux';
 
 import { changeView, setRegion } from './app/actions/actions';
@@ -94,6 +94,7 @@ class ConnectedApp extends React.Component {
         this.props.changeView(ViewMode.MAP)
     }
 
+    // TODO: The status bar overlaps the app, a horizontal bar must be added.
     render() {
         if (this.props.viewMode === ViewMode.MAP) {
             return <LitMapView
@@ -103,7 +104,7 @@ class ConnectedApp extends React.Component {
             />
         }
         else {
-            return <InfoView name={this.props.info.name}/>
+            return <InfoView name={this.props.info.name} callback={this.goBack}/>
         }
     }
 }

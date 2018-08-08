@@ -1,11 +1,22 @@
 import React from 'react'
-import { Text, View } from 'react-native'
+import { Button, Text, View } from 'react-native'
 
 
-export default ({ name }) => {
+export default ({ name, callback }) => {
 
     return (
-        <View>
+        <View
+            style={{
+                display: "flex",
+                flexDirection: "column",
+            }}
+        >
+            <Button
+                onPress={ () => {
+                    callback()
+                }}
+                title="< back"
+            />
             <Text>{name}</Text>
         </View>
     )
