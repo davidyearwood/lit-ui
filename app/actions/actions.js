@@ -7,6 +7,18 @@ export const changeView = viewMode => ({
 });
 
 
+export const mapIsReady = ready => ({
+    type: Constants.MAP_IS_READY,
+    payload: ready
+});
+
+
+export const setInfo = info => ({
+    type: Constants.SET_INFO,
+    payload: info
+})
+
+
 export const setRegion = region => ({
     type: Constants.SET_REGION,
     payload: region

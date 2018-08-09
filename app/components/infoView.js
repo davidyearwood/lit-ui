@@ -2,7 +2,7 @@ import React from 'react'
 import { Button, Text, View } from 'react-native'
 
 
-export default ({ name, callback }) => {
+export default ({ info, callback }) => {
 
     return (
         <View
@@ -17,7 +17,7 @@ export default ({ name, callback }) => {
                 }}
                 title="< back"
             />
-            <Text>{name}</Text>
+            <Text>{info.name}</Text>
         </View>
     )
 };

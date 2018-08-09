@@ -6,13 +6,15 @@ import LitMarker from './litMarker'
 const { Marker } = MapView;
 
 
-export default ({ region, places, onMarkerPressed }) => (
+export default ({ ready, region, places, onMarkerPressed, onLayout }) => (
     <MapView
         style={{ flex: 1}}
         region={region}
         minZoomLevel={15}
+        onLayout={onLayout}
     >
         {
+            ready &&
             places.map (
                 (place, index) => (
                     <Marker
@@ -22,7 +24,7 @@ export default ({ region, places, onMarkerPressed }) => (
                         onPress={ () => {
                             // for some reason, when onMarkerPressed is passed directly to onPress
                             // (e.g onPress={onMarkerPressed}), onMarkerPressed is called when Marker is created
-                            onMarkerPressed(place.map);
+                            onMarkerPressed(place.name);
                         }}
                     >
                         <LitMarker litness={place.litness}/>

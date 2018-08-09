@@ -1,4 +1,6 @@
 export default {
     CHANGE_VIEW: 'CHANGE_VIEW',
-    SET_REGION: 'SET_REGION'
+    MAP_IS_READY: 'MAP_IS_READY',
+    SET_INFO: 'SET_INFO',
+    SET_REGION: 'SET_REGION',
 };

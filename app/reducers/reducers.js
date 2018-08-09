@@ -3,14 +3,8 @@ import ViewMode from '../constants/viewMode'
 
 
 const initialState = {
-    region: {
-        latitude: 45.427606,
-        longitude: -75.721545,
-        latitudeDelta: 0.0922,
-        longitudeDelta: 0.0421,
-    },
     errorMessage: null,
-    viewMode: ViewMode.MAP,
+    isMapReady: false,
     info: {
         name: 'Some Random Name'
     },
@@ -51,7 +45,14 @@ const initialState = {
             litness: 6,
             checkedInCount: 44
         }
-    ]
+    ],
+    region: {
+        latitude: 45.427606,
+        longitude: -75.721545,
+        latitudeDelta: 0.0922,
+        longitudeDelta: 0.0421,
+    },
+    viewMode: ViewMode.MAP,
 };
 
 
@@ -61,6 +62,16 @@ const rootReducer = (state=initialState, action) => {
             return {
                 ...state,
                 viewMode: action.payload
+            };
+        case Constants.MAP_IS_READY:
+            return {
+                ...state,
+                isMapReady: action.payload
+            };
+        case Constants.SET_INFO:
+            return {
+                ...state,
+                info: action.payload
             };
         case Constants.SET_REGION:
             return {
