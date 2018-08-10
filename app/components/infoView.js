@@ -1,8 +1,9 @@
+import PropTypes from 'prop-types'
 import React from 'react'
 import { Button, Text, View } from 'react-native'
 
 
-export default ({ info, callback }) => {
+const InfoView = (props) => {
 
     return (
         <View
@@ -13,11 +14,22 @@ export default ({ info, callback }) => {
         >
             <Button
                 onPress={ () => {
-                    callback()
+                    props.backCallback()
                 }}
                 title="< back"
             />
-            <Text>{info.name}</Text>
+            <Text>{props.info.name}</Text>
         </View>
     )
 };
+
+
+InfoView.propTypes = {
+    // Callback that is called when the view's back buttons is pressed.
+    backCallback: PropTypes.func.isRequired,
+    // Object that contains all the data about a place.
+    info: PropTypes.object.isRequired,
+};
+
+
+export default InfoView

@@ -1,8 +1,9 @@
+import PropTypes from 'prop-types'
 import React from 'react'
 import { Text, View } from 'react-native'
 
 
-export default ({ litness }) => {
+const LitMarker = (props) => {
     const style = {
         backgroundColor: "#FE5859",
         padding: 5,
@@ -11,7 +12,7 @@ export default ({ litness }) => {
 
 
     const styleText = {
-        fontSize: 8 + litness,
+        fontSize: 8 + props.litness,
     };
 
     const triangleShape = {
@@ -29,10 +30,18 @@ export default ({ litness }) => {
         }}>
             <View style={style}>
                 <Text style={styleText}>
-                    🔥 {litness}
+                    🔥 {props.litness}
                 </Text>
             </View>
             <View style={triangleShape}/>
         </View>
     )
 };
+
+
+LitMarker.propTypes = {
+    litness: PropTypes.number.isRequired,
+};
+
+
+export default LitMarker

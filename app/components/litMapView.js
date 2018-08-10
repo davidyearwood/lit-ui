@@ -1,21 +1,22 @@
-import React from 'react'
 import { MapView } from 'expo'
+import PropTypes from 'prop-types'
+import React from 'react'
 import LitMarker from './litMarker'
 
 
 const { Marker } = MapView;
 
 
-export default ({ ready, region, places, onMarkerPressed, onLayout }) => (
+const LitMapView = (props) => (
     <MapView
         style={{ flex: 1}}
-        region={region}
+        region={props.region}
         minZoomLevel={15}
-        onLayout={onLayout}
+        onLayout={props.onLayout}
     >
         {
-            ready &&
-            places.map (
+            props.ready &&
+            props.places.map (
                 (place, index) => (
                     <Marker
                         key={"marker-" + index}
@@ -24,7 +25,7 @@ export default ({ ready, region, places, onMarkerPressed, onLayout }) => (
                         onPress={ () => {
                             // for some reason, when onMarkerPressed is passed directly to onPress
                             // (e.g onPress={onMarkerPressed}), onMarkerPressed is called when Marker is created
-                            onMarkerPressed(place.name);
+                            props.onMarkerPressed(place.name);
                         }}
                     >
                         <LitMarker litness={place.litness}/>
@@ -33,4 +34,21 @@ export default ({ ready, region, places, onMarkerPressed, onLayout }) => (
             )
         }
     </MapView>
-)
+);
+
+
+LitMapView.propTypes = {
+    // Callback called after MapView is mounted.
+    onLayout: PropTypes.func.isRequired,
+    // Callback called after a markers is pressed
+    onMarkerPressed: PropTypes.func.isRequired,
+    // Array that contains the locations of all markers to be rendered.
+    places: PropTypes.array.isRequired,
+    // After MapView is mounted, 'ready' should be set to true in order to render the markers. See 'onLayout'.
+    ready: PropTypes.bool.isRequired,
+    // The region where the map is rendered
+    region: PropTypes.object.isRequired,
+};
+
+
+export default LitMapView

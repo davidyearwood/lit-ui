@@ -127,7 +127,7 @@ class ConnectedApp extends React.Component {
                             }}
                         />
                     :
-                        <InfoView info={this.props.info} callback={this.goBack} />
+                        <InfoView info={this.props.info} backCallback={this.goBack} />
                 }
 
             </View>
