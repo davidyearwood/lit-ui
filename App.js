@@ -1,8 +1,8 @@
 import { Constants, Location, Permissions } from 'expo';
 import React from 'react';
-import { BackHandler, Platform, View } from 'react-native';
+import { BackHandler, Platform, View, Text, StyleSheet, Image } from 'react-native';
 import { connect, Provider } from 'react-redux';
-
+import { Button } from 'react-native'; 
 import { changeView, mapIsReady, setInfo, setRegion } from './app/actions/actions';
 import InfoView from './app/components/infoView';
 import LitMapView from './app/components/litMapView';
@@ -19,6 +19,55 @@ const mapDispatchToProps = dispatch => ({
     setInfo: info => dispatch(setInfo(info)),
     setRegion: region => dispatch(setRegion(region)),
 });
+
+const SearchResults = props => {
+    const results = props.searchResult.map((result) => {
+        <SearchResult />
+    });
+    return (
+        <View> 
+            {results}
+        </View>
+    );
+}
+
+const SearchResult = props => {
+    return(
+        <View style={searchResultStyles.container}>
+            <Image 
+                style={searchResultStyles.image}
+                source={props.source}
+            />
+            <View>
+                <Text style={searchResultStyles.title}>{props.title}</Text>
+                <Text style={searchResultStyles.description}>{props.description}</Text>
+                <Text style={searchResultStyles.description}>{props.litness} think this place is lit</Text>
+            </View>
+        </View>
+    );
+};
+
+const searchResultStyles = StyleSheet.create({
+    title: {
+        fontWeight: 'bold',
+        fontSize: 30
+    },
+    image: {
+        width: 110,
+        height: 100
+    },
+    container: {
+        backgroundColor: '#DEDCDB',
+        flexDirection: 'row',
+        justifyContent: 'space-evenly',
+        paddingTop: 10,
+        paddingBottom: 10
+    },
+    description: {
+        fontSize: 16
+    }
+});
+
 
 
 class ConnectedApp extends React.Component {
@@ -113,8 +162,13 @@ class ConnectedApp extends React.Component {
                     backgroundColor: "#FE5859"
                 }}
             >
-
-                {
+            <SearchResult 
+                title="Bar's Name"
+                description="A small description of the place."
+                litness="3"
+                source={require("./concrete.jpg")}
+            />
+                {/* {
                     this.props.viewMode === ViewMode.MAP ?
                         <LitMapView
                             ready={this.props.isMapReady}
@@ -128,7 +182,7 @@ class ConnectedApp extends React.Component {
                         />
                     :
                         <InfoView info={this.props.info} backCallback={this.goBack} />
-                }
+                } */}
 
             </View>
         )
