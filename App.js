@@ -41,7 +41,12 @@ const SearchResult = props => {
             <View>
                 <Text style={searchResultStyles.title}>{props.title}</Text>
                 <Text style={searchResultStyles.description}>{props.description}</Text>
-                <Text style={searchResultStyles.description}>{props.litness} think this place is lit</Text>
+                <View style={searchResultStyles.col}> 
+                    <View style={searchResultStyles.round}>
+                        <Image source={require('./logo.png')} style={searchResultStyles.icon} />
+                    </View>
+                    <Text style={searchResultStyles.iconText}>{props.litness} think this place is lit</Text>
+                </View>
             </View>
         </View>
     );
@@ -50,7 +55,7 @@ const SearchResult = props => {
 const searchResultStyles = StyleSheet.create({
     title: {
         fontWeight: 'bold',
-        fontSize: 30
+        fontSize: 22
     },
     image: {
         width: 110,
@@ -65,6 +70,36 @@ const searchResultStyles = StyleSheet.create({
     },
     description: {
         fontSize: 16
+    },
+    iconText: {
+        fontSize: 16,
+        fontWeight: 'bold'
+    },
+    icon: {
+        height: 30, 
+        width: 25,
+        marginLeft: 7
+    },
+    col: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 7
+    },
+    round: {
+        justifyContent: 'center',
+        width: 40, 
+        height: 40,
+        backgroundColor: "#DEDCDB",
+        borderRadius: 100,
+        shadowColor: "#000000",
+        shadowOffset: {
+            width: 0,
+            height: 4,
+        },
+        shadowOpacity: .75,
+        shadowRadius: 7.65,
+        elevation: 5,
+        marginRight: 8
     }
 });
 
@@ -162,6 +197,24 @@ class ConnectedApp extends React.Component {
                     backgroundColor: "#FE5859"
                 }}
             >
+            <SearchResult 
+                title="Bar's Name"
+                description="A small description of the place."
+                litness="3"
+                source={require("./concrete.jpg")}
+            />
+            <SearchResult 
+                title="Bar's Name"
+                description="A small description of the place."
+                litness="3"
+                source={require("./concrete.jpg")}
+            />
+            <SearchResult 
+                title="Bar's Name"
+                description="A small description of the place."
+                litness="3"
+                source={require("./concrete.jpg")}
+            />
             <SearchResult 
                 title="Bar's Name"
                 description="A small description of the place."
