@@ -1,6 +1,6 @@
 import { Constants, Location, Permissions } from 'expo';
 import React from 'react';
-import { BackHandler, Platform, View, Text, StyleSheet, Image } from 'react-native';
+import { BackHandler, Platform, View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { connect, Provider } from 'react-redux';
 import { Button } from 'react-native'; 
 import { changeView, mapIsReady, setInfo, setRegion } from './app/actions/actions';
@@ -8,6 +8,7 @@ import InfoView from './app/components/infoView';
 import LitMapView from './app/components/litMapView';
 import ViewMode from './app/constants/viewMode';
 import store from './app/stores/store';
+import SearchResult from './app/components/SearchResult';
 
 
 const mapStateToProps = state => state;
@@ -31,77 +32,10 @@ const SearchResults = props => {
     );
 }
 
-const SearchResult = props => {
-    return(
-        <View style={searchResultStyles.container}>
-            <Image 
-                style={searchResultStyles.image}
-                source={props.source}
-            />
-            <View>
-                <Text style={searchResultStyles.title}>{props.title}</Text>
-                <Text style={searchResultStyles.description}>{props.description}</Text>
-                <View style={searchResultStyles.col}> 
-                    <View style={searchResultStyles.round}>
-                        <Image source={require('./logo.png')} style={searchResultStyles.icon} />
-                    </View>
-                    <Text style={searchResultStyles.iconText}>{props.litness} think this place is lit</Text>
-                </View>
-            </View>
-        </View>
-    );
-};
 
-const searchResultStyles = StyleSheet.create({
-    title: {
-        fontWeight: 'bold',
-        fontSize: 22
-    },
-    image: {
-        width: 110,
-        height: 100
-    },
-    container: {
-        backgroundColor: '#DEDCDB',
-        flexDirection: 'row',
-        justifyContent: 'space-evenly',
-        paddingTop: 10,
-        paddingBottom: 10
-    },
-    description: {
-        fontSize: 16
-    },
-    iconText: {
-        fontSize: 16,
-        fontWeight: 'bold'
-    },
-    icon: {
-        height: 30, 
-        width: 25,
-        marginLeft: 7
-    },
-    col: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginTop: 7
-    },
-    round: {
-        justifyContent: 'center',
-        width: 40, 
-        height: 40,
-        backgroundColor: "#DEDCDB",
-        borderRadius: 100,
-        shadowColor: "#000000",
-        shadowOffset: {
-            width: 0,
-            height: 4,
-        },
-        shadowOpacity: .75,
-        shadowRadius: 7.65,
-        elevation: 5,
-        marginRight: 8
-    }
-});
+// checkedInCount
+// imageSource
+// title
 
 
 
@@ -194,33 +128,15 @@ class ConnectedApp extends React.Component {
                 style={{
                     flex: 1,
                     paddingTop: Constants.statusBarHeight,
-                    backgroundColor: "#FE5859"
+                    backgroundColor: "#474949"
                 }}
             >
             <SearchResult 
-                title="Bar's Name"
-                description="A small description of the place."
+                title="Slippery Effin Slope"
                 litness="3"
                 source={require("./concrete.jpg")}
             />
-            <SearchResult 
-                title="Bar's Name"
-                description="A small description of the place."
-                litness="3"
-                source={require("./concrete.jpg")}
-            />
-            <SearchResult 
-                title="Bar's Name"
-                description="A small description of the place."
-                litness="3"
-                source={require("./concrete.jpg")}
-            />
-            <SearchResult 
-                title="Bar's Name"
-                description="A small description of the place."
-                litness="3"
-                source={require("./concrete.jpg")}
-            />
+
                 {/* {
                     this.props.viewMode === ViewMode.MAP ?
                         <LitMapView
