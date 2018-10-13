@@ -9,6 +9,7 @@ import LitMapView from './app/components/litMapView';
 import ViewMode from './app/constants/viewMode';
 import store from './app/stores/store';
 import SearchResult from './app/components/SearchResult';
+import SearchBar from './app/components/SearchBar';
 
 const mapStateToProps = state => state;
 
@@ -18,20 +19,6 @@ const mapDispatchToProps = dispatch => ({
     mapIsReady: ready => dispatch(mapIsReady(ready)),
     setInfo: info => dispatch(setInfo(info)),
     setRegion: region => dispatch(setRegion(region)),
-});
-
-function SearchBar(props) {
-    return(
-        <TextInput style={searchBarStyles.searchBar} placeHolder="Try getting lit somewhere else?"/>
-    ); 
-}
-
-const searchBarStyles = StyleSheet.create({
-    searchBar: {
-        height: 37, 
-        width: 250,
-        backgroundColor: '#FFFFFF'
-    }
 });
 
 class ConnectedApp extends React.Component {
