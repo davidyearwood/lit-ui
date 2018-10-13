@@ -10,6 +10,7 @@ import ViewMode from './app/constants/viewMode';
 import store from './app/stores/store';
 import SearchResult from './app/components/SearchResult';
 import SearchBar from './app/components/SearchBar';
+import SettingButton from './app/components/SettingButton';
 
 const mapStateToProps = state => state;
 
@@ -114,6 +115,7 @@ class ConnectedApp extends React.Component {
                 }}
             >
             <SearchBar />
+            <SettingButton />
             {/* <View style={styles.row}>
                 <SearchResult 
                     title="Slippery Effin Slope"
