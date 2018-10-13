@@ -20,18 +20,6 @@ const mapDispatchToProps = dispatch => ({
     setRegion: region => dispatch(setRegion(region)),
 });
 
-const SearchResults = props => {
-    const results = props.searchResult.map((result) => {
-        <SearchResult />
-    });
-    return (
-        <View> 
-            {results}
-        </View>
-    );
-}
-
-
 // checkedInCount
 // imageSource
 // title
