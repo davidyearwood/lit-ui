@@ -114,9 +114,11 @@ class ConnectedApp extends React.Component {
                     backgroundColor: "#474949"
                 }}
             >
-            <SearchBar />
-            <SettingButton />
-            {/* <View style={styles.row}>
+            <View style={[ styles.row, {marginTop: 20, alignItems: 'center' }]}> 
+                <SettingButton styles={{ marginRight: 15 }}/>
+                <SearchBar />
+            </View>
+            <View style={[ styles.row, {marginTop: 'auto', marginBottom: 15} ]}>
                 <SearchResult 
                     title="Slippery Effin Slope"
                     litness="3"
@@ -132,7 +134,7 @@ class ConnectedApp extends React.Component {
                     litness="3"
                     source={require("./concrete.jpg")}
                 />
-            </View> */}
+            </View>
                 {/* {
                     this.props.viewMode === ViewMode.MAP ?
                         <LitMapView
@@ -168,6 +170,10 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'nowrap',
         justifyContent: 'center'
+    },
+    col: {
+        flexDirection: 'col',
+        justifyContent: 'space-between'
     }
 });
 

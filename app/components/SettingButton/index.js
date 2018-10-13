@@ -6,7 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 function SettingButton(props) {
     return (
-        <TouchableOpacity style={SettingButtonStyles.round}>
+        <TouchableOpacity style={[SettingButtonStyles.round, props.styles]}>
             <Ionicons name="md-menu" size={22} color="#333333" />
         </TouchableOpacity>
     ); 
@@ -24,11 +24,11 @@ const SettingButtonStyles = StyleSheet.create({
         shadowColor: "#000000",
         shadowOffset: {
             width: 0,
-            height: 2,
+            height: 4,
         },
         shadowOpacity: .75,
-        shadowRadius: 1,
-        elevation: 1,
+        shadowRadius: 7.65,
+        elevation: 5,
     }
 });
 
