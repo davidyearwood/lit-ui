@@ -10,7 +10,6 @@ import ViewMode from './app/constants/viewMode';
 import store from './app/stores/store';
 import SearchResult from './app/components/SearchResult';
 
-
 const mapStateToProps = state => state;
 
 
@@ -131,12 +130,23 @@ class ConnectedApp extends React.Component {
                     backgroundColor: "#474949"
                 }}
             >
-            <SearchResult 
-                title="Slippery Effin Slope"
-                litness="3"
-                source={require("./concrete.jpg")}
-            />
-
+            <View style={styles.row}>
+                <SearchResult 
+                    title="Slippery Effin Slope"
+                    litness="3"
+                    source={require("./concrete.jpg")}
+                />
+                <SearchResult 
+                    title="Slippery Effin Slope"
+                    litness="3"
+                    source={require("./concrete.jpg")}
+                />
+                <SearchResult 
+                    title="Slippery Effin Slope"
+                    litness="3"
+                    source={require("./concrete.jpg")}
+                />
+            </View>
                 {/* {
                     this.props.viewMode === ViewMode.MAP ?
                         <LitMapView
@@ -167,7 +177,13 @@ class ConnectedApp extends React.Component {
         // }
     }
 }
-
+const styles = StyleSheet.create({
+    row: {
+        flexDirection: 'row',
+        flexWrap: 'nowrap',
+        justifyContent: 'center'
+    }
+});
 
 const App = connect(mapStateToProps, mapDispatchToProps)(ConnectedApp);
 

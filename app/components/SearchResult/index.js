@@ -56,7 +56,9 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         padding: 12,
         width: 272, 
-        height: 110
+        height: 110,
+        marginLeft: 10,
+        marginRight: 10
     },
     description: {
         fontSize: 16
