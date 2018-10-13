@@ -1,6 +1,6 @@
 import { Constants, Location, Permissions } from 'expo';
 import React from 'react';
-import { BackHandler, Platform, View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { TextInput, BackHandler, Platform, View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { connect, Provider } from 'react-redux';
 import { Button } from 'react-native'; 
 import { changeView, mapIsReady, setInfo, setRegion } from './app/actions/actions';
@@ -20,11 +20,19 @@ const mapDispatchToProps = dispatch => ({
     setRegion: region => dispatch(setRegion(region)),
 });
 
-// checkedInCount
-// imageSource
-// title
+function SearchBar(props) {
+    return(
+        <TextInput style={searchBarStyles.searchBar} placeHolder="Try getting lit somewhere else?"/>
+    ); 
+}
 
-
+const searchBarStyles = StyleSheet.create({
+    searchBar: {
+        height: 37, 
+        width: 250,
+        backgroundColor: '#FFFFFF'
+    }
+});
 
 class ConnectedApp extends React.Component {
 
@@ -118,7 +126,8 @@ class ConnectedApp extends React.Component {
                     backgroundColor: "#474949"
                 }}
             >
-            <View style={styles.row}>
+            <SearchBar />
+            {/* <View style={styles.row}>
                 <SearchResult 
                     title="Slippery Effin Slope"
                     litness="3"
@@ -134,7 +143,7 @@ class ConnectedApp extends React.Component {
                     litness="3"
                     source={require("./concrete.jpg")}
                 />
-            </View>
+            </View> */}
                 {/* {
                     this.props.viewMode === ViewMode.MAP ?
                         <LitMapView
