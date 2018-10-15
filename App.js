@@ -1,14 +1,16 @@
 import { Constants, Location, Permissions } from 'expo';
 import React from 'react';
-import { BackHandler, Platform, View } from 'react-native';
+import { TextInput, BackHandler, Platform, View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { connect, Provider } from 'react-redux';
-
+import { Button } from 'react-native'; 
 import { changeView, mapIsReady, setInfo, setRegion } from './app/actions/actions';
 import InfoView from './app/components/infoView';
 import LitMapView from './app/components/litMapView';
 import ViewMode from './app/constants/viewMode';
 import store from './app/stores/store';
-
+import SearchResult from './app/components/SearchResult';
+import SearchBar from './app/components/SearchBar';
+import SettingButton from './app/components/SettingButton';
 
 const mapStateToProps = state => state;
 
@@ -19,7 +21,6 @@ const mapDispatchToProps = dispatch => ({
     setInfo: info => dispatch(setInfo(info)),
     setRegion: region => dispatch(setRegion(region)),
 });
-
 
 class ConnectedApp extends React.Component {
 
@@ -110,11 +111,31 @@ class ConnectedApp extends React.Component {
                 style={{
                     flex: 1,
                     paddingTop: Constants.statusBarHeight,
-                    backgroundColor: "#FE5859"
+                    backgroundColor: "#474949"
                 }}
             >
-
-                {
+            <View style={[ styles.row, {marginTop: 20, alignItems: 'center' }]}> 
+                <SettingButton styles={{ marginRight: 15 }}/>
+                <SearchBar />
+            </View>
+            <View style={[ styles.row, {marginTop: 'auto', marginBottom: 15} ]}>
+                <SearchResult 
+                    title="Slippery Effin Slope"
+                    litness="3"
+                    source={require("./concrete.jpg")}
+                />
+                <SearchResult 
+                    title="Slippery Effin Slope"
+                    litness="3"
+                    source={require("./concrete.jpg")}
+                />
+                <SearchResult 
+                    title="Slippery Effin Slope"
+                    litness="3"
+                    source={require("./concrete.jpg")}
+                />
+            </View>
+                {/* {
                     this.props.viewMode === ViewMode.MAP ?
                         <LitMapView
                             ready={this.props.isMapReady}
@@ -128,7 +149,7 @@ class ConnectedApp extends React.Component {
                         />
                     :
                         <InfoView info={this.props.info} backCallback={this.goBack} />
-                }
+                } */}
 
             </View>
         )
@@ -144,7 +165,17 @@ class ConnectedApp extends React.Component {
         // }
     }
 }
-
+const styles = StyleSheet.create({
+    row: {
+        flexDirection: 'row',
+        flexWrap: 'nowrap',
+        justifyContent: 'center'
+    },
+    col: {
+        flexDirection: 'column',
+        justifyContent: 'space-between'
+    }
+});
 
 const App = connect(mapStateToProps, mapDispatchToProps)(ConnectedApp);
 
