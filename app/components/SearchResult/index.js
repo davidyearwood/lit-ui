@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
         marginLeft: 7
     },
     col: {
-        flexDirection: 'col',
+        flexDirection: 'column',
     },
     round: {
         justifyContent: 'center',

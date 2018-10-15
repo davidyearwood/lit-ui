@@ -172,7 +172,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center'
     },
     col: {
-        flexDirection: 'col',
+        flexDirection: 'column',
         justifyContent: 'space-between'
     }
 });
