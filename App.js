@@ -1,8 +1,7 @@
 import { Constants, Location, Permissions } from 'expo';
 import React from 'react';
-import { TextInput, BackHandler, Platform, View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { TextInput, BackHandler, Platform, View, Text, StyleSheet, Image, TouchableOpacity, Button } from 'react-native';
 import { connect, Provider } from 'react-redux';
-import { Button } from 'react-native'; 
 import { changeView, mapIsReady, setInfo, setRegion } from './app/actions/actions';
 import InfoView from './app/components/infoView';
 import LitMapView from './app/components/litMapView';
