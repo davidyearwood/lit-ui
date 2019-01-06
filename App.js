@@ -1,15 +1,16 @@
 import { Constants, Location, Permissions } from 'expo';
 import React from 'react';
-import { TextInput, BackHandler, Platform, View, Text, StyleSheet, Image, TouchableOpacity, Button } from 'react-native';
+import { AsyncStorage, BackHandler, StyleSheet, View } from 'react-native';
 import { connect, Provider } from 'react-redux';
-import { changeView, mapIsReady, setInfo, setRegion } from './app/actions/actions';
-import InfoView from './app/components/infoView';
-import LitMapView from './app/components/litMapView';
+import { changeView, mapIsReady, setDeviceId, setInfo, setRegion } from './app/actions/actions';
 import ViewMode from './app/constants/viewMode';
 import store from './app/stores/store';
 import SearchResult from './app/components/SearchResult';
 import SearchBar from './app/components/SearchBar';
 import SettingButton from './app/components/SettingButton';
+import LitConstants from './app/constants/lit'
+import uuidv4 from 'uuid/v4'
+
 
 const mapStateToProps = state => state;
 
@@ -17,6 +18,7 @@ const mapStateToProps = state => state;
 const mapDispatchToProps = dispatch => ({
     changeView: viewMode => dispatch(changeView(viewMode)),
     mapIsReady: ready => dispatch(mapIsReady(ready)),
+    setDeviceId: id => dispatch(setDeviceId(id)),
     setInfo: info => dispatch(setInfo(info)),
     setRegion: region => dispatch(setRegion(region)),
 });
@@ -50,12 +52,32 @@ class ConnectedApp extends React.Component {
         BackHandler.addEventListener('hardwareBackPress', this.onBackPress)
     }
 
+    componentWillMount () {
+        // Sets a unique id when the app is launched for the first time.
+        AsyncStorage.getItem(LitConstants.DEVICE_ID_LABEL)
+            .then( id => {
+                if (id === null || !id.match(/\w{8}-\w{4}-\w{4}-\w{4}-\w{12}/)) {
+                    const new_id = uuidv4();
+                    AsyncStorage.setItem(LitConstants.DEVICE_ID_LABEL, new_id)
+                        .then( () => console.log('Device ID: ', new_id))
+                        .catch( error => console.log('Error saving data:', error))
+                }
+                else {
+                    console.log('Device ID: ', id);
+                    this.props.setDeviceId(id);
+                }
+            })
+            .catch( error => {
+                console.log('Error fetching data:', error);
+            })
+    }
+
     componentWillUnmount () {
         BackHandler.removeEventListener('hardwareBackPress', this.onBackPress)
     }
 
     // TODO: Change status for props
-    getLocationAsync = async () => {
+    async getLocationAsync () {
         let { status } = await Permissions.askAsync(Permissions.LOCATION);
 
         if (status !== 'granted') {

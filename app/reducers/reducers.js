@@ -3,6 +3,7 @@ import ViewMode from '../constants/viewMode'
 
 
 const initialState = {
+    deviceId: '',
     errorMessage: null,
     isMapReady: false,
     info: {
@@ -72,6 +73,11 @@ const rootReducer = (state=initialState, action) => {
             return {
                 ...state,
                 info: action.payload
+            };
+        case Constants.SET_DEVICE_ID:
+            return {
+                ...state,
+                deviceId: action.payload
             };
         case Constants.SET_REGION:
             return {
