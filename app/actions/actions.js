@@ -13,10 +13,16 @@ export const mapIsReady = ready => ({
 });
 
 
+export const setDeviceId = id => ({
+    type: Constants.SET_DEVICE_ID,
+    payload: id
+});
+
+
 export const setInfo = info => ({
     type: Constants.SET_INFO,
     payload: info
-})
+});
 
 
 export const setRegion = region => ({
