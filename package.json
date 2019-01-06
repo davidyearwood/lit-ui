@@ -29,6 +29,7 @@
     "ios": "react-native-scripts ios",
     "test": "jest",
     "eslint": "eslint",
+    "prettier": "prettier",
     "eslint-check": "eslint --print-config .eslintrc.js | eslint-config-prettier-check"
   },
   "husky": {
@@ -38,8 +39,8 @@
   },
   "lint-staged": {
     "*.js": [
-      "prettier --fix",
-      "eslint",
+      "eslint --fix",
+      "prettier --write",
       "git add"
     ]
   },
