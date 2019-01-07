@@ -1,8 +1,9 @@
-/* eslint-disable no-console */
+/* eslint-disable no-console  */
+/* eslint-disable no-unused-vars */
 import { Constants, Location, Permissions } from "expo";
 import React from "react";
-import { AsyncStorage, BackHandler, StyleSheet } from "react-native";
-import { connect } from "react-redux";
+import { AsyncStorage, BackHandler, StyleSheet, View } from "react-native";
+import { connect, Provider } from "react-redux";
 import {
   changeView,
   mapIsReady,
@@ -12,9 +13,9 @@ import {
 } from "./app/actions/actions";
 import ViewMode from "./app/constants/viewMode";
 import store from "./app/stores/store";
-// import SearchResult from "./app/components/SearchResult";
-// import SearchBar from "./app/components/SearchBar";
-// import SettingButton from "./app/components/SettingButton";
+import SearchResult from "./app/components/SearchResult";
+import SearchBar from "./app/components/SearchBar";
+import SettingButton from "./app/components/SettingButton";
 import LitConstants from "./app/constants/lit";
 import uuidv4 from "uuid/v4";
 
