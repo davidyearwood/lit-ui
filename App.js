@@ -2,14 +2,21 @@
 /* eslint-disable no-unused-vars */
 import { Constants, Location, Permissions } from "expo";
 import React from "react";
-import { AsyncStorage, BackHandler, StyleSheet, View } from "react-native";
+import {
+  Platform,
+  AsyncStorage,
+  BackHandler,
+  StyleSheet,
+  View
+} from "react-native";
 import { connect, Provider } from "react-redux";
 import {
   changeView,
   mapIsReady,
   setDeviceId,
   setInfo,
-  setRegion
+  setRegion,
+  setError
 } from "./app/actions/actions";
 import ViewMode from "./app/constants/viewMode";
 import store from "./app/stores/store";
@@ -40,19 +47,6 @@ class ConnectedApp extends React.Component {
     this.onMarkerPressed = this.onMarkerPressed.bind(this);
   }
 
-  // Don't delete this function, will be useful in the future.
-  //
-  // componentWillMount () {
-  //     if (Platform.OS === 'android' && !Constants.isDevice) {
-  //         this.setState({
-  //             errorMessage: 'Oops, this will not work'
-  //         })
-  //     }
-  //     else {
-  //         this._getLocationAsync()
-  //     }
-  // }
-
   componentDidMount() {
     BackHandler.addEventListener("hardwareBackPress", this.onBackPress);
   }
@@ -74,6 +68,16 @@ class ConnectedApp extends React.Component {
       .catch(error => {
         console.log("Error fetching data:", error);
       });
+
+    // Ask for permission before getting location
+    if (Platform.OS === "android" && !Constants.isDevice) {
+      this.props.setError("Oops, this will not work");
+      this.setState({
+        errorMessage: "Oops, this will not work"
+      });
+    } else {
+      this.getLocationAsync();
+    }
   }
 
   componentWillUnmount() {
@@ -85,9 +89,7 @@ class ConnectedApp extends React.Component {
     let { status } = await Permissions.askAsync(Permissions.LOCATION);
 
     if (status !== "granted") {
-      this.setState({
-        errorMessage: "Permission denied"
-      });
+      this.props.setError("Permission denied");
     }
 
     const location = await Location.getCurrentPositionAsync();
