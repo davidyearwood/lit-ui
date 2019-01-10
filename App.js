@@ -1,8 +1,15 @@
 /* eslint-disable no-console  */
 /* eslint-disable no-unused-vars */
+import axios from "axios";
 import { Constants, Location, Permissions } from "expo";
 import React from "react";
-import { AsyncStorage, BackHandler, StyleSheet, View } from "react-native";
+import {
+  AsyncStorage,
+  BackHandler,
+  Platform,
+  StyleSheet,
+  View
+} from "react-native";
 import { connect, Provider } from "react-redux";
 import {
   changeView,
@@ -16,6 +23,7 @@ import store from "./app/stores/store";
 import SearchResult from "./app/components/SearchResult";
 import SearchBar from "./app/components/SearchBar";
 import SettingButton from "./app/components/SettingButton";
+import litApi from "./app/litApi";
 import LitConstants from "./app/constants/lit";
 import uuidv4 from "uuid/v4";
 
@@ -38,20 +46,31 @@ class ConnectedApp extends React.Component {
     this.onMainScreen = this.onMainScreen.bind(this);
     this.onMapLayout = this.onMapLayout.bind(this);
     this.onMarkerPressed = this.onMarkerPressed.bind(this);
+    this.updateDeviceLocation = this.updateDeviceLocation.bind(this);
+    this.updateLocations = this.updateLocations.bind(this);
   }
 
-  // Don't delete this function, will be useful in the future.
-  //
-  // componentWillMount () {
-  //     if (Platform.OS === 'android' && !Constants.isDevice) {
-  //         this.setState({
-  //             errorMessage: 'Oops, this will not work'
-  //         })
-  //     }
-  //     else {
-  //         this._getLocationAsync()
-  //     }
-  // }
+  async _getDeviceLocationAsync() {
+    if (Platform.OS === "android" && !Constants.isDevice) {
+      return null;
+    }
+    let { status } = await Permissions.askAsync(Permissions.LOCATION);
+
+    if (status !== "granted") {
+      this.setState({
+        errorMessage: "Permission denied"
+      });
+    }
+
+    const location = await Location.getCurrentPositionAsync();
+
+    return {
+      latitude: location.coords.latitude,
+      longitude: location.coords.longitude,
+      latitudeDelta: 0.0922,
+      longitudeDelta: 0.0421
+    };
+  }
 
   componentDidMount() {
     BackHandler.addEventListener("hardwareBackPress", this.onBackPress);
@@ -74,30 +93,13 @@ class ConnectedApp extends React.Component {
       .catch(error => {
         console.log("Error fetching data:", error);
       });
+
+    // Sets device location
+    this.updateDeviceLocation(true);
   }
 
   componentWillUnmount() {
     BackHandler.removeEventListener("hardwareBackPress", this.onBackPress);
-  }
-
-  // TODO: Change status for props
-  async getLocationAsync() {
-    let { status } = await Permissions.askAsync(Permissions.LOCATION);
-
-    if (status !== "granted") {
-      this.setState({
-        errorMessage: "Permission denied"
-      });
-    }
-
-    const location = await Location.getCurrentPositionAsync();
-    const region = {
-      latitude: location.coords.latitude,
-      longitude: location.coords.longitude,
-      latitudeDelta: 0.0922,
-      longitudeDelta: 0.0421
-    };
-    this.props.setRegion(region);
   }
 
   // TODO: Acording with the documentation, goBack should be async
@@ -186,6 +188,30 @@ class ConnectedApp extends React.Component {
     // else {
     //     return <InfoView name={this.props.info.name} callback={this.goBack}/>
     // }
+  }
+
+  updateDeviceLocation(fetchLocations = false) {
+    this._getDeviceLocationAsync().then(region => {
+      if (region) {
+        const previousRegion = this.props.region;
+        if (previousRegion !== region) {
+          console.log("New region:", region);
+          this.props.setRegion(region);
+          if (fetchLocations) {
+            this.updateLocations();
+          }
+        }
+      }
+    });
+  }
+
+  updateLocations(radius = 10000) {
+    const lat = this.props.region.latitude;
+    const lng = this.props.region.longitude;
+    litApi
+      .getLocations(lat, lng, radius)
+      .then(result => console.log(result))
+      .catch(error => console.log(error));
   }
 }
 const styles = StyleSheet.create({
