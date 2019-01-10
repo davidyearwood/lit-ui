@@ -21,11 +21,11 @@ export default {
       });
   },
 
-  setDeviceLocation(devicdeId, locationId) {
+  setDeviceLocation(deviceId, locationId) {
     const url = API_URL + "set-device-location/";
     axios
       .post(url, {
-        id: devicdeId,
+        id: deviceId,
         place_id: locationId
       })
       .then(response => {
