@@ -24,3 +24,8 @@ export const setRegion = region => ({
   type: Constants.SET_REGION,
   payload: region
 });
+
+export const setPlaces = places => ({
+  type: Constants.SET_PLACES,
+  payload: places
+});

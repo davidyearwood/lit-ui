@@ -82,6 +82,11 @@ const rootReducer = (state = initialState, action) => {
         ...state,
         region: action.payload
       };
+    case Constants.SET_PLACES:
+      return {
+        ...state,
+        places: action.payload
+      };
     default:
       return state;
   }
