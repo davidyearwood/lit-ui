@@ -30,6 +30,7 @@ import LitConstants from "./app/constants/lit";
 import uuidv4 from "uuid/v4";
 import LitMapView from "./app/components/litMapView";
 import { MapView } from "expo";
+import { Marker } from "react-native-maps";
 
 const mapStateToProps = state => state;
 
@@ -70,10 +71,10 @@ class ConnectedApp extends React.Component {
     const location = await Location.getCurrentPositionAsync();
 
     return {
-      latitude: location.coords.latitude,
-      longitude: location.coords.longitude,
-      latitudeDelta: 0.0922,
-      longitudeDelta: 0.0421
+      lat: location.coords.latitude,
+      lng: location.coords.longitude,
+      latDelta: 0.0922,
+      lngDelta: 0.0421
     };
   }
 
@@ -140,7 +141,8 @@ class ConnectedApp extends React.Component {
       if (region) {
         const previousRegion = this.props.region;
         if (previousRegion !== region) {
-          // console.log("New region:", region);
+          console.log("New region:", region);
+          console.log(region);
           this.props.setRegion(region);
           if (fetchLocations) {
             this.updatePlaces();
@@ -151,8 +153,8 @@ class ConnectedApp extends React.Component {
   }
 
   updatePlaces(radius = 10000) {
-    const lat = this.props.region.latitude;
-    const lng = this.props.region.longitude;
+    const lat = this.props.region.lat;
+    const lng = this.props.region.lng;
     litApi
       .getLocations(lat, lng, radius)
       .then(places => this.props.setPlaces(places.result))
@@ -160,16 +162,25 @@ class ConnectedApp extends React.Component {
       .catch(error => console.log(error));
   }
 
-  // TODO: The status bar overlaps the app, a horizontal bar must be added.
-  // type Region {
-  //   latitude: Number,
-  //   longitude: Number,
-  //   latitudeDelta: Number,
-  //   longitudeDelta: Number,
-  // }
   render() {
-    let { region } = this.props;
-    return <MapView region={region} style={{ flex: 1 }} />;
+    let { region, places } = this.props;
+    let regionLatLng = {
+      latitude: region.lat,
+      longitude: region.lng,
+      latitudeDelta: region.latDelta,
+      longitudeDelta: region.lngDelta
+    };
+
+    let placesMarker = places.map(place => {
+      let LatLng = {
+        latitude: place.location.lat,
+        longitude: place.location.lng
+      };
+
+      return <Marker coordinate={LatLng} title={place.name} key={place.id} />;
+    });
+
+    return <MapView region={regionLatLng} style={{ flex: 1 }} />;
   }
 }
 const styles = StyleSheet.create({
