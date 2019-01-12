@@ -31,6 +31,7 @@ import uuidv4 from "uuid/v4";
 import LitMapView from "./app/components/litMapView";
 import { MapView } from "expo";
 import { Marker } from "react-native-maps";
+import MarkerIcon from "./app/components/SVG/MarkerIcon";
 
 const mapStateToProps = state => state;
 
@@ -177,7 +178,11 @@ class ConnectedApp extends React.Component {
         longitude: place.location.lng
       };
 
-      return <Marker coordinate={LatLng} title={place.name} key={place.id} />;
+      return (
+        <Marker coordinate={LatLng} title={place.name} key={place.id}>
+          <MarkerIcon />
+        </Marker>
+      );
     });
 
     return (
