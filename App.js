@@ -180,7 +180,11 @@ class ConnectedApp extends React.Component {
       return <Marker coordinate={LatLng} title={place.name} key={place.id} />;
     });
 
-    return <MapView region={regionLatLng} style={{ flex: 1 }} />;
+    return (
+      <MapView region={regionLatLng} style={{ flex: 1 }}>
+        {placesMarker}
+      </MapView>
+    );
   }
 }
 const styles = StyleSheet.create({
