@@ -31,6 +31,8 @@ import uuidv4 from "uuid/v4";
 import LitMapView from "./app/components/litMapView";
 import { MapView } from "expo";
 import LitMarkers from "./app/components/LitMarker/LitMarkers";
+import UserMarkerIcon from "./app/components/SVG/UserMarkerIcon";
+import { Marker } from "react-native-maps";
 
 const mapStateToProps = state => state;
 
@@ -174,6 +176,9 @@ class ConnectedApp extends React.Component {
     return (
       <MapView region={regionLatLng} style={{ flex: 1 }}>
         <LitMarkers places={places} />
+        <Marker coordinate={regionLatLng} title="user">
+          <UserMarkerIcon />
+        </Marker>
       </MapView>
     );
   }
