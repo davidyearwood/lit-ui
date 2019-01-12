@@ -30,8 +30,7 @@ import LitConstants from "./app/constants/lit";
 import uuidv4 from "uuid/v4";
 import LitMapView from "./app/components/litMapView";
 import { MapView } from "expo";
-import { Marker } from "react-native-maps";
-import MarkerIcon from "./app/components/SVG/MarkerIcon";
+import LitMarkers from "./app/components/LitMarker/LitMarkers";
 
 const mapStateToProps = state => state;
 
@@ -172,22 +171,9 @@ class ConnectedApp extends React.Component {
       longitudeDelta: region.lngDelta
     };
 
-    let placesMarker = places.map(place => {
-      let LatLng = {
-        latitude: place.location.lat,
-        longitude: place.location.lng
-      };
-
-      return (
-        <Marker coordinate={LatLng} title={place.name} key={place.id}>
-          <MarkerIcon />
-        </Marker>
-      );
-    });
-
     return (
       <MapView region={regionLatLng} style={{ flex: 1 }}>
-        {placesMarker}
+        <LitMarkers places={places} />
       </MapView>
     );
   }
