@@ -18,7 +18,8 @@ import {
   setDeviceId,
   setInfo,
   setRegion,
-  setPlaces
+  setPlaces,
+  setError
 } from "./app/actions/actions";
 import ViewMode from "./app/constants/viewMode";
 import store from "./app/stores/store";

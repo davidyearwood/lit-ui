@@ -29,3 +29,8 @@ export const setPlaces = places => ({
   type: Constants.SET_PLACES,
   payload: places
 });
+
+export const setError = error => ({
+  type: Constants.SET_ERROR,
+  payload: error
+});
