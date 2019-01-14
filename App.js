@@ -33,7 +33,8 @@ import LitMapView from "./app/components/litMapView";
 import { MapView } from "expo";
 import LitMarkers from "./app/components/LitMarker/LitMarkers";
 import UserMarkerIcon from "./app/components/SVG/UserMarkerIcon";
-import { Marker } from "react-native-maps";
+import { Marker, PROVIDER_GOOGLE } from "react-native-maps";
+import litMapStyle from "./app/components/LitMap/litMapStyle";
 
 const mapStateToProps = state => state;
 
@@ -175,7 +176,12 @@ class ConnectedApp extends React.Component {
     };
 
     return (
-      <MapView region={regionLatLng} style={{ flex: 1 }}>
+      <MapView
+        region={regionLatLng}
+        style={{ flex: 1 }}
+        customMapStyle={litMapStyle}
+        provider={PROVIDER_GOOGLE}
+      >
         <LitMarkers places={places} />
         <Marker coordinate={regionLatLng} title="user">
           <UserMarkerIcon />
