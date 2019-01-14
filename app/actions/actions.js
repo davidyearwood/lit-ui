@@ -24,3 +24,13 @@ export const setRegion = region => ({
   type: Constants.SET_REGION,
   payload: region
 });
+
+export const setPlaces = places => ({
+  type: Constants.SET_PLACES,
+  payload: places
+});
+
+export const setError = error => ({
+  type: Constants.SET_ERROR,
+  payload: error
+});

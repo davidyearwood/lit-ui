@@ -8,7 +8,8 @@ import {
   BackHandler,
   Platform,
   StyleSheet,
-  View
+  View,
+  Text
 } from "react-native";
 import { connect, Provider } from "react-redux";
 import {
@@ -16,7 +17,9 @@ import {
   mapIsReady,
   setDeviceId,
   setInfo,
-  setRegion
+  setRegion,
+  setPlaces,
+  setError
 } from "./app/actions/actions";
 import ViewMode from "./app/constants/viewMode";
 import store from "./app/stores/store";
@@ -26,6 +29,12 @@ import SettingButton from "./app/components/SettingButton";
 import litApi from "./app/litApi";
 import LitConstants from "./app/constants/lit";
 import uuidv4 from "uuid/v4";
+import LitMapView from "./app/components/litMapView";
+import { MapView } from "expo";
+import LitMarkers from "./app/components/LitMarker/LitMarkers";
+import UserMarkerIcon from "./app/components/SVG/UserMarkerIcon";
+import { Marker, PROVIDER_GOOGLE } from "react-native-maps";
+import litMapStyle from "./app/components/LitMap/litMapStyle";
 
 const mapStateToProps = state => state;
 
@@ -34,7 +43,8 @@ const mapDispatchToProps = dispatch => ({
   mapIsReady: ready => dispatch(mapIsReady(ready)),
   setDeviceId: id => dispatch(setDeviceId(id)),
   setInfo: info => dispatch(setInfo(info)),
-  setRegion: region => dispatch(setRegion(region))
+  setRegion: region => dispatch(setRegion(region)),
+  setPlaces: places => dispatch(setPlaces(places))
 });
 
 class ConnectedApp extends React.Component {
@@ -47,7 +57,7 @@ class ConnectedApp extends React.Component {
     this.onMapLayout = this.onMapLayout.bind(this);
     this.onMarkerPressed = this.onMarkerPressed.bind(this);
     this.updateDeviceLocation = this.updateDeviceLocation.bind(this);
-    this.updateLocations = this.updateLocations.bind(this);
+    this.updatePlaces = this.updatePlaces.bind(this);
   }
 
   async _getDeviceLocationAsync() {
@@ -65,10 +75,10 @@ class ConnectedApp extends React.Component {
     const location = await Location.getCurrentPositionAsync();
 
     return {
-      latitude: location.coords.latitude,
-      longitude: location.coords.longitude,
-      latitudeDelta: 0.0922,
-      longitudeDelta: 0.0421
+      lat: location.coords.latitude,
+      lng: location.coords.longitude,
+      latDelta: 0.0922,
+      lngDelta: 0.0421
     };
   }
 
@@ -83,10 +93,10 @@ class ConnectedApp extends React.Component {
         if (id === null || !id.match(/\w{8}-\w{4}-\w{4}-\w{4}-\w{12}/)) {
           const new_id = uuidv4();
           AsyncStorage.setItem(LitConstants.DEVICE_ID_LABEL, new_id)
-            .then(() => console.log("Device ID: ", new_id))
+            // .then(() => console.log("Device ID: ", new_id))
             .catch(error => console.log("Error saving data:", error));
         } else {
-          console.log("Device ID: ", id);
+          // console.log("Device ID: ", id);
           this.props.setDeviceId(id);
         }
       })
@@ -130,88 +140,54 @@ class ConnectedApp extends React.Component {
     this.props.setInfo({ name: name });
   }
 
-  // TODO: The status bar overlaps the app, a horizontal bar must be added.
-  render() {
-    return (
-      <View
-        style={{
-          flex: 1,
-          paddingTop: Constants.statusBarHeight,
-          backgroundColor: "#474949"
-        }}
-      >
-        <View style={[styles.row, { marginTop: 20, alignItems: "center" }]}>
-          <SettingButton styles={{ marginRight: 15 }} />
-          <SearchBar />
-        </View>
-        <View style={[styles.row, { marginTop: "auto", marginBottom: 15 }]}>
-          <SearchResult
-            title="Slippery Effin Slope"
-            litness="3"
-            source={require("./concrete.jpg")}
-          />
-          <SearchResult
-            title="Slippery Effin Slope"
-            litness="3"
-            source={require("./concrete.jpg")}
-          />
-          <SearchResult
-            title="Slippery Effin Slope"
-            litness="3"
-            source={require("./concrete.jpg")}
-          />
-        </View>
-        {/* {
-                    this.props.viewMode === ViewMode.MAP ?
-                        <LitMapView
-                            ready={this.props.isMapReady}
-                            onLayout={this.onMapLayout}
-                            onMarkerPressed={this.onMarkerPressed}
-                            places={this.props.places}
-                            region={this.props.region}
-                            style={{
-                                flex: 1
-                            }}
-                        />
-                    :
-                        <InfoView info={this.props.info} backCallback={this.goBack} />
-                } */}
-      </View>
-    );
-    // if (this.props.viewMode === ViewMode.MAP) {
-    //     return <LitMapView
-    //         onMarkerPressed={this.onMarkerPressed}
-    //         places={this.props.places}
-    //         region={this.props.region}
-    //     />
-    // }
-    // else {
-    //     return <InfoView name={this.props.info.name} callback={this.goBack}/>
-    // }
-  }
-
   updateDeviceLocation(fetchLocations = false) {
     this._getDeviceLocationAsync().then(region => {
       if (region) {
         const previousRegion = this.props.region;
         if (previousRegion !== region) {
           console.log("New region:", region);
+          console.log(region);
           this.props.setRegion(region);
           if (fetchLocations) {
-            this.updateLocations();
+            this.updatePlaces();
           }
         }
       }
     });
   }
 
-  updateLocations(radius = 10000) {
-    const lat = this.props.region.latitude;
-    const lng = this.props.region.longitude;
+  updatePlaces(radius = 10000) {
+    const lat = this.props.region.lat;
+    const lng = this.props.region.lng;
     litApi
       .getLocations(lat, lng, radius)
+      .then(places => this.props.setPlaces(places.result))
       .then(result => console.log(result))
       .catch(error => console.log(error));
+  }
+
+  render() {
+    let { region, places } = this.props;
+    let regionLatLng = {
+      latitude: region.lat,
+      longitude: region.lng,
+      latitudeDelta: region.latDelta,
+      longitudeDelta: region.lngDelta
+    };
+
+    return (
+      <MapView
+        region={regionLatLng}
+        style={{ flex: 1 }}
+        customMapStyle={litMapStyle}
+        provider={PROVIDER_GOOGLE}
+      >
+        <LitMarkers places={places} />
+        <Marker coordinate={regionLatLng} title="user">
+          <UserMarkerIcon />
+        </Marker>
+      </MapView>
+    );
   }
 }
 const styles = StyleSheet.create({
