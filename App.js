@@ -1,7 +1,7 @@
 /* eslint-disable no-console  */
 /* eslint-disable no-unused-vars */
 import axios from "axios";
-import { Constants, Location, Permissions } from "expo";
+import { Constants, Location, Permissions, TaskManager } from "expo";
 import React from "react";
 import {
   AsyncStorage,
@@ -26,7 +26,7 @@ import store from "./app/stores/store";
 import SearchResult from "./app/components/SearchResult";
 import SearchBar from "./app/components/SearchBar";
 import SettingButton from "./app/components/SettingButton";
-import litApi from "./app/litApi";
+import litApi from "./app/api/api";
 import LitConstants from "./app/constants/lit";
 import uuidv4 from "uuid/v4";
 import LitMapView from "./app/components/litMapView";
@@ -35,6 +35,28 @@ import LitMarkers from "./app/components/LitMarker/LitMarkers";
 import UserMarkerIcon from "./app/components/SVG/UserMarkerIcon";
 import { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import litMapStyle from "./app/components/LitMap/litMapStyle";
+
+TaskManager.defineTask(
+  LitConstants.TASK_SET_DEVICE_LOCATION,
+  ({ data, error }) => {
+    if (error) {
+      console.log("[js] TaskManager error:", error);
+    }
+    if (data) {
+      // AsyncStorage.getItem(LitConstants.DEVICE_ID_LABEL).then(id => {
+      //   litApi
+      //     .setDeviceLocation(id, "ChIJUcXdzOr_0YURd95z59ZBAYc")
+      //     .then(response => {
+      //       // Do something with the response
+      //     })
+      //     .catch(error => {
+      //       console.log('[js] Unable to set location:', error);
+      //     });
+      // });
+      console.log("[js] TaskManager", data);
+    }
+  }
+);
 
 const mapStateToProps = state => state;
 
@@ -84,6 +106,11 @@ class ConnectedApp extends React.Component {
 
   componentDidMount() {
     BackHandler.addEventListener("hardwareBackPress", this.onBackPress);
+
+    // Fetch device location in the background
+    Location.startLocationUpdatesAsync(LitConstants.TASK_SET_DEVICE_LOCATION, {
+      accuracy: Location.Accuracy.High
+    });
   }
 
   componentWillMount() {

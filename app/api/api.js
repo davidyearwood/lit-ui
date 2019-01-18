@@ -23,7 +23,7 @@ export default {
 
   setDeviceLocation(deviceId, locationId) {
     const url = API_URL + "set-device-location/";
-    axios
+    return axios
       .post(url, {
         id: deviceId,
         place_id: locationId
