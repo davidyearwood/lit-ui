@@ -1,7 +1,15 @@
 /* eslint-disable no-console  */
 /* eslint-disable no-unused-vars */
 import axios from "axios";
-import { Constants, Location, Permissions, TaskManager } from "expo";
+import {
+  Constants,
+  Linking,
+  Location,
+  Permissions,
+  TaskManager,
+  WebBrowser
+} from "expo";
+import PropTypes from "prop-types";
 import React from "react";
 import {
   AsyncStorage,
@@ -12,6 +20,7 @@ import {
   Text
 } from "react-native";
 import { connect, Provider } from "react-redux";
+import uuidv4 from "uuid/v4";
 import {
   changeView,
   mapIsReady,
@@ -21,20 +30,19 @@ import {
   setPlaces,
   setError
 } from "./app/actions/actions";
-import ViewMode from "./app/constants/viewMode";
-import store from "./app/stores/store";
-import SearchResult from "./app/components/SearchResult";
-import SearchBar from "./app/components/SearchBar";
-import SettingButton from "./app/components/SettingButton";
 import litApi from "./app/api/api";
-import LitConstants from "./app/constants/lit";
-import uuidv4 from "uuid/v4";
-import LitMapView from "./app/components/litMapView";
-import { MapView } from "expo";
-import LitMarkers from "./app/components/LitMarker/LitMarkers";
-import UserMarkerIcon from "./app/components/SVG/UserMarkerIcon";
-import { Marker, PROVIDER_GOOGLE } from "react-native-maps";
+import SearchBar from "./app/components/SearchBar";
 import litMapStyle from "./app/components/LitMap/litMapStyle";
+import LitMapView from "./app/components/litMapView";
+import LitMarkers from "./app/components/LitMarker/LitMarkers";
+import LoginScreen from "./app/components/LoginScreen";
+import SearchResult from "./app/components/SearchResult";
+import SettingButton from "./app/components/SettingButton";
+import UserMarkerIcon from "./app/components/SVG/UserMarkerIcon";
+import LitConstants from "./app/constants/lit";
+import ViewMode from "./app/constants/viewMode";
+import { INSTAGRAM_ID } from "./credentials";
+import store from "./app/stores/store";
 
 TaskManager.defineTask(
   LitConstants.TASK_SET_DEVICE_LOCATION,
@@ -80,6 +88,7 @@ class ConnectedApp extends React.Component {
     this.onMarkerPressed = this.onMarkerPressed.bind(this);
     this.updateDeviceLocation = this.updateDeviceLocation.bind(this);
     this.updatePlaces = this.updatePlaces.bind(this);
+    this._loginWithInstagram = this._loginWithInstagram.bind(this);
   }
 
   async _getDeviceLocationAsync() {
@@ -104,16 +113,45 @@ class ConnectedApp extends React.Component {
     };
   }
 
-  componentDidMount() {
-    BackHandler.addEventListener("hardwareBackPress", this.onBackPress);
-
-    // Fetch device location in the background
-    Location.startLocationUpdatesAsync(LitConstants.TASK_SET_DEVICE_LOCATION, {
-      accuracy: Location.Accuracy.High
-    });
+  _handleLogin(event) {
+    WebBrowser.dismissBrowser();
+    const data = Linking.parse(event.url);
+    console.log(data);
   }
 
-  componentWillMount() {
+  _addLoginListener() {
+    Linking.addEventListener(
+      Linking.makeUrl("login/instagram"),
+      this._handleLogin
+    );
+  }
+
+  _removeLoginListener() {
+    Linking.removeEventListener(
+      Linking.makeUrl("login/instagram"),
+      this._handleLogin
+    );
+  }
+
+  async _loginWithInstagram() {
+    try {
+      let redirectUrl = "http://litapi.projectunicorn.net/oauth/instagram/";
+      this._addLoginListener();
+      const result = await WebBrowser.openAuthSessionAsync(
+        `https://api.instagram.com/oauth/authorize/` +
+          `?client_id=${INSTAGRAM_ID}` +
+          `&redirect_uri=${encodeURIComponent(redirectUrl)}` +
+          `&response_type=code`,
+        Linking.makeUrl("login/instagram")
+      );
+      this._removeLoginListener();
+      console.log(result);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  componentDidMount() {
     // Sets a unique id when the app is launched for the first time.
     AsyncStorage.getItem(LitConstants.DEVICE_ID_LABEL)
       .then(id => {
@@ -133,6 +171,13 @@ class ConnectedApp extends React.Component {
 
     // Sets device location
     this.updateDeviceLocation(true);
+
+    BackHandler.addEventListener("hardwareBackPress", this.onBackPress);
+
+    // Fetch device location in the background
+    Location.startLocationUpdatesAsync(LitConstants.TASK_SET_DEVICE_LOCATION, {
+      accuracy: Location.Accuracy.High
+    });
   }
 
   componentWillUnmount() {
@@ -194,29 +239,23 @@ class ConnectedApp extends React.Component {
   }
 
   render() {
-    let { region, places } = this.props;
-    let regionLatLng = {
-      latitude: region.lat,
-      longitude: region.lng,
-      latitudeDelta: region.latDelta,
-      longitudeDelta: region.lngDelta
-    };
+    return <LoginScreen callback={this._loginWithInstagram} />;
+  }
 
-    return (
-      <MapView
-        region={regionLatLng}
-        style={{ flex: 1 }}
-        customMapStyle={litMapStyle}
-        provider={PROVIDER_GOOGLE}
-      >
-        <LitMarkers places={places} />
-        <Marker coordinate={regionLatLng} title="user">
-          <UserMarkerIcon />
-        </Marker>
-      </MapView>
-    );
+  static get propTypes() {
+    return {
+      changeView: PropTypes.func,
+      mapIsReady: PropTypes.func,
+      region: PropTypes.object,
+      setDeviceId: PropTypes.func,
+      setInfo: PropTypes.func,
+      setPlaces: PropTypes.func,
+      setRegion: PropTypes.func,
+      viewMode: PropTypes.string
+    };
   }
 }
+
 const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
@@ -230,13 +269,15 @@ const styles = StyleSheet.create({
 });
 
 // eslint-disable-next-line no-unused-vars
-const App = connect(
+const Lit = connect(
   mapStateToProps,
   mapDispatchToProps
 )(ConnectedApp);
 
-export default () => (
+const App = () => (
   <Provider store={store}>
     <App />
   </Provider>
 );
+
+export default App;
