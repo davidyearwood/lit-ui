@@ -46,7 +46,9 @@ const placeCard = {
   shadowOpacity: 1,
   shadowRadius: 5,
   elevation: 4,
-  borderRadius: 4
+  borderRadius: 4,
+  marginRight: 12.64,
+  marginLeft: 12.64
 };
 
 const placeName = {

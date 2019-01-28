@@ -9,7 +9,9 @@ import {
   Platform,
   StyleSheet,
   View,
-  Text
+  Text,
+  ScrollView,
+  FlatList
 } from "react-native";
 import { connect, Provider } from "react-redux";
 import {
@@ -228,13 +230,28 @@ class ConnectedApp extends React.Component {
             <UserMarkerIcon />
           </Marker>
         </MapView>
-        <PlaceCard
-          placeName="The spot"
-          placeAddress="123 F. Street chicago, IL"
-          placeDistance="4m away"
-          litScore="99"
-          onPress={() => console.log("pressed!")}
-        />
+        <View
+          style={{
+            flexDirection: "column",
+            flex: 1,
+            justifyContent: "flex-end"
+          }}
+        >
+          <FlatList
+            horizontal={true}
+            data={places}
+            renderItem={({ item }) => (
+              <PlaceCard
+                key={item.id}
+                placeName={item.name}
+                placeAddress="123 F. Street chicago, IL"
+                placeDistance="4m away"
+                litScore={item.litness}
+                onPress={() => console.log("pressed!")}
+              />
+            )}
+          />
+        </View>
       </View>
     );
   }
