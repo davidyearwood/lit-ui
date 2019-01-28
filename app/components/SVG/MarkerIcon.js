@@ -8,8 +8,8 @@ function MarkerIcon(props) {
 
   return (
     <Svg
-      width="25"
-      height="36"
+      width={props.width}
+      height={props.height}
       viewBox="0 0 25 36"
       fill="none"
       xmlns="http://www.w3.org/2000/Svg"
@@ -25,7 +25,9 @@ function MarkerIcon(props) {
 }
 
 MarkerIcon.defaultProps = {
-  fill: "#FFA183"
+  fill: "#FFA183",
+  width: "25",
+  height: "36"
 };
 
 export default MarkerIcon;

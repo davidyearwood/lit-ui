@@ -35,28 +35,29 @@ import LitMarkers from "./app/components/LitMarker/LitMarkers";
 import UserMarkerIcon from "./app/components/SVG/UserMarkerIcon";
 import { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import litMapStyle from "./app/components/LitMap/litMapStyle";
+import PlaceCard from "./app/components/PlaceCard";
 
-TaskManager.defineTask(
-  LitConstants.TASK_SET_DEVICE_LOCATION,
-  ({ data, error }) => {
-    if (error) {
-      console.log("[js] TaskManager error:", error);
-    }
-    if (data) {
-      // AsyncStorage.getItem(LitConstants.DEVICE_ID_LABEL).then(id => {
-      //   litApi
-      //     .setDeviceLocation(id, "ChIJUcXdzOr_0YURd95z59ZBAYc")
-      //     .then(response => {
-      //       // Do something with the response
-      //     })
-      //     .catch(error => {
-      //       console.log('[js] Unable to set location:', error);
-      //     });
-      // });
-      console.log("[js] TaskManager", data);
-    }
-  }
-);
+// TaskManager.defineTask(
+//   LitConstants.TASK_SET_DEVICE_LOCATION,
+//   ({ data, error }) => {
+//     if (error) {
+//       console.log("[js] TaskManager error:", error);
+//     }
+//     if (data) {
+//       // AsyncStorage.getItem(LitConstants.DEVICE_ID_LABEL).then(id => {
+//       //   litApi
+//       //     .setDeviceLocation(id, "ChIJUcXdzOr_0YURd95z59ZBAYc")
+//       //     .then(response => {
+//       //       // Do something with the response
+//       //     })
+//       //     .catch(error => {
+//       //       console.log('[js] Unable to set location:', error);
+//       //     });
+//       // });
+//       console.log("[js] TaskManager", data);
+//     }
+//   }
+// );
 
 const mapStateToProps = state => state;
 
@@ -203,17 +204,38 @@ class ConnectedApp extends React.Component {
     };
 
     return (
-      <MapView
-        region={regionLatLng}
-        style={{ flex: 1 }}
-        customMapStyle={litMapStyle}
-        provider={PROVIDER_GOOGLE}
+      <View
+        style={{
+          flex: 1,
+          flexDirection: "column"
+        }}
       >
-        <LitMarkers places={places} />
-        <Marker coordinate={regionLatLng} title="user">
-          <UserMarkerIcon />
-        </Marker>
-      </MapView>
+        <MapView
+          region={regionLatLng}
+          style={{
+            flex: 1,
+            position: "absolute",
+            top: 0,
+            bottom: 0,
+            left: 0,
+            right: 0
+          }}
+          customMapStyle={litMapStyle}
+          provider={PROVIDER_GOOGLE}
+        >
+          <LitMarkers places={places} />
+          <Marker coordinate={regionLatLng} title="user">
+            <UserMarkerIcon />
+          </Marker>
+        </MapView>
+        <PlaceCard
+          placeName="The spot"
+          placeAddress="123 F. Street chicago, IL"
+          placeDistance="4m away"
+          litScore="99"
+          onPress={() => console.log("pressed!")}
+        />
+      </View>
     );
   }
 }
