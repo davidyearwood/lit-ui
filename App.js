@@ -39,27 +39,27 @@ import { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import litMapStyle from "./app/components/LitMap/litMapStyle";
 import PlaceCard from "./app/components/PlaceCard";
 
-// TaskManager.defineTask(
-//   LitConstants.TASK_SET_DEVICE_LOCATION,
-//   ({ data, error }) => {
-//     if (error) {
-//       console.log("[js] TaskManager error:", error);
-//     }
-//     if (data) {
-//       // AsyncStorage.getItem(LitConstants.DEVICE_ID_LABEL).then(id => {
-//       //   litApi
-//       //     .setDeviceLocation(id, "ChIJUcXdzOr_0YURd95z59ZBAYc")
-//       //     .then(response => {
-//       //       // Do something with the response
-//       //     })
-//       //     .catch(error => {
-//       //       console.log('[js] Unable to set location:', error);
-//       //     });
-//       // });
-//       console.log("[js] TaskManager", data);
-//     }
-//   }
-// );
+TaskManager.defineTask(
+  LitConstants.TASK_SET_DEVICE_LOCATION,
+  ({ data, error }) => {
+    if (error) {
+      console.log("[js] TaskManager error:", error);
+    }
+    if (data) {
+      // AsyncStorage.getItem(LitConstants.DEVICE_ID_LABEL).then(id => {
+      //   litApi
+      //     .setDeviceLocation(id, "ChIJUcXdzOr_0YURd95z59ZBAYc")
+      //     .then(response => {
+      //       // Do something with the response
+      //     })
+      //     .catch(error => {
+      //       console.log('[js] Unable to set location:', error);
+      //     });
+      // });
+      console.log("[js] TaskManager", data);
+    }
+  }
+);
 
 const mapStateToProps = state => state;
 
@@ -230,28 +230,21 @@ class ConnectedApp extends React.Component {
             <UserMarkerIcon />
           </Marker>
         </MapView>
-        <View
-          style={{
-            flexDirection: "column",
-            flex: 1,
-            justifyContent: "flex-end"
-          }}
-        >
-          <FlatList
-            horizontal={true}
-            data={places}
-            renderItem={({ item }) => (
-              <PlaceCard
-                key={item.id}
-                placeName={item.name}
-                placeAddress="123 F. Street chicago, IL"
-                placeDistance="4m away"
-                litScore={item.litness}
-                onPress={() => console.log("pressed!")}
-              />
-            )}
-          />
-        </View>
+
+        <FlatList
+          horizontal={true}
+          data={places}
+          renderItem={({ item }) => (
+            <PlaceCard
+              key={item.id}
+              placeName={item.name}
+              placeAddress="123 F. Street chicago, IL"
+              placeDistance="4m away"
+              litScore={item.litness}
+              onPress={() => console.log("pressed!")}
+            />
+          )}
+        />
       </View>
     );
   }
