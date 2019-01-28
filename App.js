@@ -91,7 +91,6 @@ class ConnectedApp extends React.Component {
     this.updateDeviceLocation = this.updateDeviceLocation.bind(this);
     this.updatePlaces = this.updatePlaces.bind(this);
     this._loginWithInstagram = this._loginWithInstagram.bind(this);
-    this._handleLogin = this._handleLogin.bind(this);
   }
 
   async _getDeviceLocationAsync() {
@@ -116,42 +115,32 @@ class ConnectedApp extends React.Component {
     };
   }
 
-  _handleLogin(event) {
-    WebBrowser.dismissBrowser();
-    const { token } = Linking.parse(event.url);
-    AsyncStorage.setItem(LitConstants.TOKEN_LABEL, token);
-    this.setToken(token);
-    console.log("[js] New Token:", token);
-  }
-
-  _addLoginListener() {
-    Linking.addEventListener(
-      Linking.makeUrl(LitConstants.INSTAGRAM_DEEP_LINK),
-      this._handleLogin
-    );
-  }
-
-  _removeLoginListener() {
-    Linking.removeEventListener(
-      Linking.makeUrl(LitConstants.INSTAGRAM_DEEP_LINK),
-      this._handleLogin
-    );
-  }
-
   async _loginWithInstagram() {
     try {
-      this._addLoginListener();
       const deep_link = Linking.makeUrl(LitConstants.INSTAGRAM_DEEP_LINK);
-      const result = await WebBrowser.openAuthSessionAsync(
+      const url =
         `https://api.instagram.com/oauth/authorize/` +
-          `?client_id=${INSTAGRAM_ID}` +
-          `&redirect_uri=${encodeURIComponent(LitConstants.REDIRECT_URL)}` +
-          `&response_type=code` +
-          `&state=${deep_link}`,
-        Linking.makeUrl("login/instagram")
-      );
-      this._removeLoginListener();
-      console.log(result);
+        `?client_id=${INSTAGRAM_ID}` +
+        `&redirect_uri=${LitConstants.REDIRECT_URL}` +
+        `&response_type=code` +
+        `&state=${deep_link}`;
+      console.log("[js] url:", url);
+      WebBrowser.openAuthSessionAsync(url, deep_link)
+        .then(result => {
+          if (result.type === "success") {
+            const token_regex = /token=\w+\.\w+\.\w+/;
+            const match = result.url.match(token_regex);
+            if (match) {
+              const token = match[0].substring(6);
+              AsyncStorage.setItem(LitConstants.TOKEN_LABEL, token);
+              this.props.setToken(token);
+              console.log("[js] New Token:", token);
+            }
+          }
+        })
+        .catch(error => console.log("[js] WebBrowser Error:", error));
+
+      // this._removeLoginListener();
     } catch (error) {
       console.log(error);
     }
@@ -178,7 +167,7 @@ class ConnectedApp extends React.Component {
     // Retrieves the api token if one is available
     AsyncStorage.getItem(LitConstants.TOKEN_LABEL).then(token => {
       if (token !== null) {
-        this.setToken(token);
+        this.props.setToken(token);
       }
       console.log("[js] TOKEN:", token);
     });
