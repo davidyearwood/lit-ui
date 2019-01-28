@@ -15,14 +15,14 @@ export const setDeviceId = id => ({
   payload: id
 });
 
+export const setError = error => ({
+  type: Constants.SET_ERROR,
+  payload: error
+});
+
 export const setInfo = info => ({
   type: Constants.SET_INFO,
   payload: info
-});
-
-export const setRegion = region => ({
-  type: Constants.SET_REGION,
-  payload: region
 });
 
 export const setPlaces = places => ({
@@ -30,7 +30,12 @@ export const setPlaces = places => ({
   payload: places
 });
 
-export const setError = error => ({
-  type: Constants.SET_ERROR,
-  payload: error
+export const setRegion = region => ({
+  type: Constants.SET_REGION,
+  payload: region
+});
+
+export const setToken = token => ({
+  type: Constants.SET_TOKEN,
+  payload: token
 });
