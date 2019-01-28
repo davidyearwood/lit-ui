@@ -38,7 +38,7 @@ function PlaceCard(props) {
 PlaceCard.propTypes = {
   litScore: PropTypes.number,
   placeAddress: PropTypes.string,
-  placeDistance: PropTypes.number,
+  placeDistance: PropTypes.string,
   placeName: PropTypes.string
 };
 
