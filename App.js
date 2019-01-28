@@ -277,7 +277,7 @@ const Lit = connect(
 
 const App = () => (
   <Provider store={store}>
-    <App />
+    <Lit />
   </Provider>
 );
 
