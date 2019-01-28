@@ -121,27 +121,28 @@ class ConnectedApp extends React.Component {
 
   _addLoginListener() {
     Linking.addEventListener(
-      Linking.makeUrl("login/instagram"),
+      Linking.makeUrl(LitConstants.INSTAGRAM_DEEP_LINK),
       this._handleLogin
     );
   }
 
   _removeLoginListener() {
     Linking.removeEventListener(
-      Linking.makeUrl("login/instagram"),
+      Linking.makeUrl(LitConstants.INSTAGRAM_DEEP_LINK),
       this._handleLogin
     );
   }
 
   async _loginWithInstagram() {
     try {
-      let redirectUrl = "http://litapi.projectunicorn.net/oauth/instagram/";
       this._addLoginListener();
+      const deep_link = Linking.makeUrl(LitConstants.INSTAGRAM_DEEP_LINK);
       const result = await WebBrowser.openAuthSessionAsync(
         `https://api.instagram.com/oauth/authorize/` +
           `?client_id=${INSTAGRAM_ID}` +
-          `&redirect_uri=${encodeURIComponent(redirectUrl)}` +
-          `&response_type=code`,
+          `&redirect_uri=${encodeURIComponent(LitConstants.REDIRECT_URL)}` +
+          `&response_type=code` +
+          `&state={deep_link}`,
         Linking.makeUrl("login/instagram")
       );
       this._removeLoginListener();
