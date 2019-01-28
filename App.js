@@ -3,9 +3,10 @@
 import axios from "axios";
 import {
   Constants,
+  Permissions,
   Linking,
   Location,
-  Permissions,
+  MapView,
   TaskManager,
   WebBrowser
 } from "expo";
@@ -246,12 +247,66 @@ class ConnectedApp extends React.Component {
   }
 
   render() {
+    // Asumes that having a token is the same that bein logged.
+    if (this.props.token) {
+      let { region, places } = this.props;
+      let regionLatLng = {
+        latitude: region.lat,
+        longitude: region.lng,
+        latitudeDelta: region.latDelta,
+        longitudeDelta: region.lngDelta
+      };
+
+      return (
+        <View
+          style={{
+            flex: 1,
+            flexDirection: "column"
+          }}
+        >
+          <MapView
+            region={regionLatLng}
+            style={{
+              flex: 1,
+              position: "absolute",
+              top: 0,
+              bottom: 0,
+              left: 0,
+              right: 0
+            }}
+            customMapStyle={litMapStyle}
+            provider={PROVIDER_GOOGLE}
+          >
+            <LitMarkers places={places} />
+            <Marker coordinate={regionLatLng} title="user">
+              <UserMarkerIcon />
+            </Marker>
+          </MapView>
+
+          <FlatList
+            horizontal={true}
+            data={places}
+            renderItem={({ item }) => (
+              <PlaceCard
+                key={item.id}
+                placeName={item.name}
+                placeAddress="123 F. Street chicago, IL"
+                placeDistance="4m away"
+                litScore={item.litness}
+                onPress={() => console.log("pressed!")}
+              />
+            )}
+          />
+        </View>
+      );
+    }
     return <LoginScreen callback={this._loginWithInstagram} />;
   }
 
   static get propTypes() {
     return {
       changeView: PropTypes.func,
+      places: PropTypes.array,
       mapIsReady: PropTypes.func,
       region: PropTypes.object,
       setDeviceId: PropTypes.func,
@@ -259,6 +314,7 @@ class ConnectedApp extends React.Component {
       setPlaces: PropTypes.func,
       setRegion: PropTypes.func,
       setToken: PropTypes.func,
+      token: PropTypes.string,
       viewMode: PropTypes.string
     };
   }
