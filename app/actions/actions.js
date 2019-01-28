@@ -15,6 +15,11 @@ export const setDeviceId = id => ({
   payload: id
 });
 
+export const setError = error => ({
+  type: Constants.SET_ERROR,
+  payload: error
+});
+
 export const setInfo = info => ({
   type: Constants.SET_INFO,
   payload: info
@@ -30,7 +35,7 @@ export const setPlaces = places => ({
   payload: places
 });
 
-export const setError = error => ({
-  type: Constants.SET_ERROR,
-  payload: error
+export const setToken = token => ({
+  type: Constants.SET_TOKEN,
+  payload: token
 });

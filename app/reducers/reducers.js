@@ -53,6 +53,7 @@ const initialState = {
     latDelta: 0.0922,
     lngDelta: 0.0421
   },
+  token: "",
   viewMode: ViewMode.MAP
 };
 
@@ -92,6 +93,11 @@ const rootReducer = (state = initialState, action) => {
       return {
         ...state,
         errorMessage: action.payload
+      };
+    case Constants.SET_TOKEN:
+      return {
+        ...state,
+        token: action.payload
       };
     default:
       return state;

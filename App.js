@@ -25,10 +25,11 @@ import {
   changeView,
   mapIsReady,
   setDeviceId,
+  setError,
   setInfo,
   setRegion,
   setPlaces,
-  setError
+  setToken
 } from "./app/actions/actions";
 import litApi from "./app/api/api";
 import SearchBar from "./app/components/SearchBar";
@@ -73,8 +74,9 @@ const mapDispatchToProps = dispatch => ({
   mapIsReady: ready => dispatch(mapIsReady(ready)),
   setDeviceId: id => dispatch(setDeviceId(id)),
   setInfo: info => dispatch(setInfo(info)),
+  setPlaces: places => dispatch(setPlaces(places)),
   setRegion: region => dispatch(setRegion(region)),
-  setPlaces: places => dispatch(setPlaces(places))
+  setToken: token => dispatch(setToken(token))
 });
 
 class ConnectedApp extends React.Component {
@@ -89,6 +91,7 @@ class ConnectedApp extends React.Component {
     this.updateDeviceLocation = this.updateDeviceLocation.bind(this);
     this.updatePlaces = this.updatePlaces.bind(this);
     this._loginWithInstagram = this._loginWithInstagram.bind(this);
+    this._handleLogin = this._handleLogin.bind(this);
   }
 
   async _getDeviceLocationAsync() {
@@ -115,8 +118,10 @@ class ConnectedApp extends React.Component {
 
   _handleLogin(event) {
     WebBrowser.dismissBrowser();
-    const data = Linking.parse(event.url);
-    console.log(data);
+    const { token } = Linking.parse(event.url);
+    AsyncStorage.setItem(LitConstants.TOKEN_LABEL, token);
+    this.setToken(token);
+    console.log("[js] New Token:", token);
   }
 
   _addLoginListener() {
@@ -142,7 +147,7 @@ class ConnectedApp extends React.Component {
           `?client_id=${INSTAGRAM_ID}` +
           `&redirect_uri=${encodeURIComponent(LitConstants.REDIRECT_URL)}` +
           `&response_type=code` +
-          `&state={deep_link}`,
+          `&state=${deep_link}`,
         Linking.makeUrl("login/instagram")
       );
       this._removeLoginListener();
@@ -169,6 +174,14 @@ class ConnectedApp extends React.Component {
       .catch(error => {
         console.log("Error fetching data:", error);
       });
+
+    // Retrieves the api token if one is available
+    AsyncStorage.getItem(LitConstants.TOKEN_LABEL).then(token => {
+      if (token !== null) {
+        this.setToken(token);
+      }
+      console.log("[js] TOKEN:", token);
+    });
 
     // Sets device location
     this.updateDeviceLocation(true);
@@ -252,6 +265,7 @@ class ConnectedApp extends React.Component {
       setInfo: PropTypes.func,
       setPlaces: PropTypes.func,
       setRegion: PropTypes.func,
+      setToken: PropTypes.func,
       viewMode: PropTypes.string
     };
   }
