@@ -52,14 +52,14 @@ TaskManager.defineTask(
     }
     if (data) {
       AsyncStorage.getItem(LitConstants.DEVICE_ID_LABEL).then(id => {
-        litApi
-          .setDeviceLocation(id, "ChIJUcXdzOr_0YURd95z59ZBAYc")
-          .then(response => {
-            // Do something with the response
-          })
-          .catch(error => {
-            console.log("[js] Unable to set location:", error);
-          });
+        // litApi
+        //   .setDeviceLocation(id, "ChIJUcXdzOr_0YURd95z59ZBAYc")
+        //   .then(response => {
+        //     // Do something with the response
+        //   })
+        //   .catch(error => {
+        //     console.log("[js] Unable to set location:", error);
+        //   });
       });
       console.log("[js] TaskManager", data);
     }
