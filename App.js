@@ -17,7 +17,9 @@ import {
   Platform,
   StyleSheet,
   View,
-  Text
+  Text,
+  ScrollView,
+  FlatList
 } from "react-native";
 import { connect, Provider } from "react-redux";
 import uuidv4 from "uuid/v4";
@@ -44,6 +46,8 @@ import LitConstants from "./app/constants/lit";
 import ViewMode from "./app/constants/viewMode";
 import { INSTAGRAM_ID } from "./credentials";
 import store from "./app/stores/store";
+import { Marker, PROVIDER_GOOGLE } from "react-native-maps";
+import PlaceCard from "./app/components/PlaceCard";
 
 TaskManager.defineTask(
   LitConstants.TASK_SET_DEVICE_LOCATION,
