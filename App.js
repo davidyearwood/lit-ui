@@ -33,7 +33,7 @@ import {
   setRegion,
   setPlaces,
   setToken
-} from "./app/actions/actions";
+} from "./app/actions";
 import litApi from "./app/api/api";
 import SearchBar from "./app/components/SearchBar";
 import litMapStyle from "./app/components/LitMap/litMapStyle";
@@ -46,7 +46,7 @@ import UserMarkerIcon from "./app/components/SVG/UserMarkerIcon";
 import LitConstants from "./app/constants/lit";
 import ViewMode from "./app/constants/viewMode";
 import { INSTAGRAM_ID } from "./credentials";
-import store from "./app/stores/store";
+import store from "./app/stores";
 import { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import PlaceCard from "./app/components/PlaceCard";
 

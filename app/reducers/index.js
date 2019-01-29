@@ -1,4 +1,4 @@
-import Constants from "../constants/constants";
+import Actions from "../constants/actions";
 import ViewMode from "../constants/viewMode";
 
 const initialState = {
@@ -59,42 +59,42 @@ const initialState = {
 
 const rootReducer = (state = initialState, action) => {
   switch (action.type) {
-    case Constants.CHANGE_VIEW:
+    case Actions.CHANGE_VIEW:
       return {
         ...state,
         viewMode: action.payload
       };
-    case Constants.MAP_IS_READY:
+    case Actions.MAP_IS_READY:
       return {
         ...state,
         isMapReady: action.payload
       };
-    case Constants.SET_INFO:
+    case Actions.SET_INFO:
       return {
         ...state,
         info: action.payload
       };
-    case Constants.SET_DEVICE_ID:
+    case Actions.SET_DEVICE_ID:
       return {
         ...state,
         deviceId: action.payload
       };
-    case Constants.SET_REGION:
+    case Actions.SET_REGION:
       return {
         ...state,
         region: action.payload
       };
-    case Constants.SET_PLACES:
+    case Actions.SET_PLACES:
       return {
         ...state,
         places: action.payload
       };
-    case Constants.SET_ERROR:
+    case Actions.SET_ERROR:
       return {
         ...state,
         errorMessage: action.payload
       };
-    case Constants.SET_TOKEN:
+    case Actions.SET_TOKEN:
       return {
         ...state,
         token: action.payload
