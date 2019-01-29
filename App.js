@@ -27,7 +27,6 @@ import { connect, Provider } from "react-redux";
 import uuidv4 from "uuid/v4";
 import {
   mapIsReady,
-  setDeviceId,
   setError,
   setInfo,
   setRegion,
@@ -58,17 +57,16 @@ TaskManager.defineTask(
       console.log("[js] TaskManager error:", error);
     }
     if (data) {
-      AsyncStorage.getItem(LitConstants.DEVICE_ID_LABEL).then(id => {
-        // NOTE - Code commented because the API changed
-        // litApi
-        //   .setDeviceLocation(id, "ChIJUcXdzOr_0YURd95z59ZBAYc")
-        //   .then(response => {
-        //     // Do something with the response
-        //   })
-        //   .catch(error => {
-        //     console.log("[js] Unable to set location:", error);
-        //   });
-      });
+      // NOTE - Code commented because the API changed
+      // const device_id = Constants.installationId;
+      // litApi
+      //   .setDeviceLocation(id, "ChIJUcXdzOr_0YURd95z59ZBAYc")
+      //   .then(response => {
+      //     // Do something with the response
+      //   })
+      //   .catch(error => {
+      //     console.log("[js] Unable to set location:", error);
+      //   });
       console.log("[js] TaskManager", data);
     }
   }
@@ -78,7 +76,6 @@ const mapStateToProps = state => state;
 
 const mapDispatchToProps = dispatch => ({
   mapIsReady: ready => dispatch(mapIsReady(ready)),
-  setDeviceId: id => dispatch(setDeviceId(id)),
   setInfo: info => dispatch(setInfo(info)),
   setPlaces: places => dispatch(setPlaces(places)),
   setRegion: region => dispatch(setRegion(region)),
@@ -167,22 +164,8 @@ class ConnectedApp extends React.Component {
   }
 
   componentDidMount() {
-    // Sets a unique id when the app is launched for the first time.
-    AsyncStorage.getItem(LitConstants.DEVICE_ID_LABEL)
-      .then(id => {
-        if (id === null || !id.match(/\w{8}-\w{4}-\w{4}-\w{4}-\w{12}/)) {
-          const new_id = uuidv4();
-          AsyncStorage.setItem(LitConstants.DEVICE_ID_LABEL, new_id)
-            // .then(() => console.log("Device ID: ", new_id))
-            .catch(error => console.log("Error saving data:", error));
-        } else {
-          // console.log("Device ID: ", id);
-          this.props.setDeviceId(id);
-        }
-      })
-      .catch(error => {
-        console.log("Error fetching data:", error);
-      });
+    // Unique device id
+    console.log("[js] Installation ID:", Constants.installationId);
 
     // Retrieves the api token if one is available
     // Asumes that having a token is the same that bein logged.
@@ -321,7 +304,6 @@ class ConnectedApp extends React.Component {
       places: PropTypes.array,
       mapIsReady: PropTypes.func,
       region: PropTypes.object,
-      setDeviceId: PropTypes.func,
       setInfo: PropTypes.func,
       setPlaces: PropTypes.func,
       setRegion: PropTypes.func,

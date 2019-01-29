@@ -5,11 +5,6 @@ export const mapIsReady = ready => ({
   payload: ready
 });
 
-export const setDeviceId = id => ({
-  type: Actions.SET_DEVICE_ID,
-  payload: id
-});
-
 export const setError = error => ({
   type: Actions.SET_ERROR,
   payload: error

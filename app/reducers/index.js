@@ -2,7 +2,6 @@ import Actions from "../constants/actions";
 import Views from "../constants/views";
 
 const initialState = {
-  deviceId: "",
   deviceLocation: "",
   errorMessage: null,
   isMapReady: false,
@@ -68,11 +67,6 @@ const rootReducer = (state = initialState, action) => {
       return {
         ...state,
         info: action.payload
-      };
-    case Actions.SET_DEVICE_ID:
-      return {
-        ...state,
-        deviceId: action.payload
       };
     case Actions.SET_REGION:
       return {
