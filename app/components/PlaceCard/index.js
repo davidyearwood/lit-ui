@@ -8,30 +8,21 @@ let { height, width } = Dimensions.get("window");
 
 function PlaceCard(props) {
   return (
-    <View
-      style={{
-        flex: 1,
-        flexDirection: "column",
-        justifyContent: "flex-end",
-        alignItems: "center"
-      }}
-    >
-      <View style={styles.placeCard}>
-        <Text style={styles.placeName}>{props.placeName}</Text>
-        <View style={[styles.placeRow, styles.centerHor]}>
-          <FireIcon />
-          <Text style={[styles.text, { marginLeft: 8.88 }]}>
-            {props.litScore}
-          </Text>
-        </View>
-        <View style={styles.placeRow}>
-          <Text style={[styles.text, { marginRight: 8.88 }]}>
-            {props.placeAddress}
-          </Text>
-          <Text style={styles.text}>{props.placeDistance}</Text>
-        </View>
-        <LitButton text="Check-in" />
+    <View style={styles.placeCard}>
+      <Text style={styles.placeName}>{props.placeName}</Text>
+      <View style={[styles.placeRow, styles.centerHor]}>
+        <FireIcon />
+        <Text style={[styles.text, { marginLeft: 8.88 }]}>
+          {props.litScore}
+        </Text>
       </View>
+      <View style={styles.placeRow}>
+        <Text style={[styles.text, { marginRight: 8.88 }]}>
+          {props.placeAddress}
+        </Text>
+        <Text style={styles.text}>{props.placeDistance}</Text>
+      </View>
+      <LitButton text="Check-in" />
     </View>
   );
 }
@@ -41,7 +32,6 @@ const placeCard = {
   backgroundColor: "#202020",
   flexDirection: "column",
   width: width * 0.9,
-  marginBottom: 50,
   padding: 15,
   shadowColor: "#000",
   shadowOffset: { width: 0, height: 5 },

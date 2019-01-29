@@ -12,7 +12,8 @@ import {
   Text,
   ScrollView,
   FlatList,
-  Dimensions
+  Dimensions,
+  Animated
 } from "react-native";
 import { connect, Provider } from "react-redux";
 import {
@@ -207,7 +208,7 @@ class ConnectedApp extends React.Component {
       longitudeDelta: region.lngDelta
     };
 
-    const PLACE_CARD_WIDTH = width * 0.9 + 12.64 + 15;
+    const PLACE_CARD_WIDTH = width * 0.9 + 30;
 
     return (
       <View
@@ -234,7 +235,12 @@ class ConnectedApp extends React.Component {
             <UserMarkerIcon />
           </Marker>
         </MapView>
-        <ScrollView horizontal={true} snapToInterval={PLACE_CARD_WIDTH}>
+        <Animated.ScrollView
+          horizontal={true}
+          snapToInterval={PLACE_CARD_WIDTH}
+          snapToAlignment="end"
+          style={styles.scrollView}
+        >
           {places.map(item => {
             return (
               <PlaceCard
@@ -247,7 +253,7 @@ class ConnectedApp extends React.Component {
               />
             );
           })}
-        </ScrollView>
+        </Animated.ScrollView>
       </View>
     );
   }
@@ -261,6 +267,12 @@ const styles = StyleSheet.create({
   col: {
     flexDirection: "column",
     justifyContent: "space-between"
+  },
+  scrollView: {
+    position: "absolute",
+    bottom: 30,
+    left: 0,
+    right: 0
   }
 });
 
