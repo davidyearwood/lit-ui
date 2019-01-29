@@ -44,7 +44,7 @@ import LitMapView from "./app/components/litMapView";
 import LoadingScreen from "./app/components/LoadingScreen";
 import LoginScreen from "./app/components/LoginScreen";
 import PlaceCard from "./app/components/PlaceCard";
-import SearchBar from "./app/components/SearchBar";
+import SCearchBar from "./app/components/SearchBar";
 import SearchResult from "./app/components/SearchResult";
 import SettingButton from "./app/components/SettingButton";
 import UserMarkerIcon from "./app/components/SVG/UserMarkerIcon";
@@ -59,6 +59,7 @@ TaskManager.defineTask(
     }
     if (data) {
       AsyncStorage.getItem(LitConstants.DEVICE_ID_LABEL).then(id => {
+        // NOTE - Code commented because the API changed
         // litApi
         //   .setDeviceLocation(id, "ChIJUcXdzOr_0YURd95z59ZBAYc")
         //   .then(response => {
@@ -97,6 +98,7 @@ class ConnectedApp extends React.Component {
     this.updateDeviceLocation = this.updateDeviceLocation.bind(this);
     this.updatePlaces = this.updatePlaces.bind(this);
     this._loginWithInstagram = this._loginWithInstagram.bind(this);
+    this._initServices = this._initServices.bind(this);
   }
 
   async _getDeviceLocationAsync() {
@@ -121,6 +123,16 @@ class ConnectedApp extends React.Component {
     };
   }
 
+  _initServices() {
+    // Sets device location
+    this.updateDeviceLocation(true);
+
+    // Fetch device location in the background
+    Location.startLocationUpdatesAsync(LitConstants.TASK_SET_DEVICE_LOCATION, {
+      accuracy: Location.Accuracy.High
+    });
+  }
+
   async _loginWithInstagram() {
     try {
       const deep_link = Linking.makeUrl(LitConstants.INSTAGRAM_DEEP_LINK);
@@ -141,6 +153,7 @@ class ConnectedApp extends React.Component {
               AsyncStorage.setItem(LitConstants.TOKEN_LABEL, token);
               this.props.setToken(token);
               this.props.setView(Views.DEFAULT);
+              this._initServices();
               console.log("[js] New Token:", token);
             }
           }
@@ -172,25 +185,19 @@ class ConnectedApp extends React.Component {
       });
 
     // Retrieves the api token if one is available
+    // Asumes that having a token is the same that bein logged.
     AsyncStorage.getItem(LitConstants.TOKEN_LABEL).then(token => {
       if (token !== null) {
         this.props.setToken(token);
         this.props.setView(Views.DEFAULT);
+        this._initServices();
       } else {
         this.props.setView(Views.LOGIN);
       }
       console.log("[js] TOKEN:", token);
     });
 
-    // Sets device location
-    this.updateDeviceLocation(true);
-
     BackHandler.addEventListener("hardwareBackPress", this.onBackPress);
-
-    // Fetch device location in the background
-    Location.startLocationUpdatesAsync(LitConstants.TASK_SET_DEVICE_LOCATION, {
-      accuracy: Location.Accuracy.High
-    });
   }
 
   componentWillUnmount() {
@@ -222,7 +229,7 @@ class ConnectedApp extends React.Component {
 
   onMarkerPressed(name) {
     this.props.view(View.INFO);
-    this.props.setInfo({ name: name });
+    this.props.setInfo({ name });
   }
 
   updateDeviceLocation(fetchLocations = false) {
@@ -252,7 +259,6 @@ class ConnectedApp extends React.Component {
   }
 
   render() {
-    // Asumes that having a token is the same that bein logged.
     if (this.props.view === Views.MAP) {
       let { region, places } = this.props;
       let regionLatLng = {
