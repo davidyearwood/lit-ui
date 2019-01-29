@@ -11,7 +11,8 @@ import {
   View,
   Text,
   ScrollView,
-  FlatList
+  FlatList,
+  Dimensions
 } from "react-native";
 import { connect, Provider } from "react-redux";
 import {
@@ -39,27 +40,28 @@ import { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import litMapStyle from "./app/components/LitMap/litMapStyle";
 import PlaceCard from "./app/components/PlaceCard";
 
-TaskManager.defineTask(
-  LitConstants.TASK_SET_DEVICE_LOCATION,
-  ({ data, error }) => {
-    if (error) {
-      console.log("[js] TaskManager error:", error);
-    }
-    if (data) {
-      // AsyncStorage.getItem(LitConstants.DEVICE_ID_LABEL).then(id => {
-      //   litApi
-      //     .setDeviceLocation(id, "ChIJUcXdzOr_0YURd95z59ZBAYc")
-      //     .then(response => {
-      //       // Do something with the response
-      //     })
-      //     .catch(error => {
-      //       console.log('[js] Unable to set location:', error);
-      //     });
-      // });
-      console.log("[js] TaskManager", data);
-    }
-  }
-);
+let { height, width } = Dimensions.get("window");
+// TaskManager.defineTask(
+//   LitConstants.TASK_SET_DEVICE_LOCATION,
+//   ({ data, error }) => {
+//     if (error) {
+//       console.log("[js] TaskManager error:", error);
+//     }
+//     if (data) {
+//       // AsyncStorage.getItem(LitConstants.DEVICE_ID_LABEL).then(id => {
+//       //   litApi
+//       //     .setDeviceLocation(id, "ChIJUcXdzOr_0YURd95z59ZBAYc")
+//       //     .then(response => {
+//       //       // Do something with the response
+//       //     })
+//       //     .catch(error => {
+//       //       console.log('[js] Unable to set location:', error);
+//       //     });
+//       // });
+//       console.log("[js] TaskManager", data);
+//     }
+//   }
+// );
 
 const mapStateToProps = state => state;
 
@@ -205,6 +207,8 @@ class ConnectedApp extends React.Component {
       longitudeDelta: region.lngDelta
     };
 
+    const PLACE_CARD_WIDTH = width * 0.9 + 12.64 + 15;
+
     return (
       <View
         style={{
@@ -230,21 +234,20 @@ class ConnectedApp extends React.Component {
             <UserMarkerIcon />
           </Marker>
         </MapView>
-
-        <FlatList
-          horizontal={true}
-          data={places}
-          renderItem={({ item }) => (
-            <PlaceCard
-              key={item.id}
-              placeName={item.name}
-              placeAddress="123 F. Street chicago, IL"
-              placeDistance="4m away"
-              litScore={item.litness}
-              onPress={() => console.log("pressed!")}
-            />
-          )}
-        />
+        <ScrollView horizontal={true} snapToInterval={PLACE_CARD_WIDTH}>
+          {places.map(item => {
+            return (
+              <PlaceCard
+                key={item.id}
+                placeName={item.name}
+                placeAddress="123 F. Street chicago, IL"
+                placeDistance="4m away"
+                litScore={item.litness}
+                onPress={() => console.log("pressed!")}
+              />
+            );
+          })}
+        </ScrollView>
       </View>
     );
   }

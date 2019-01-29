@@ -1,8 +1,10 @@
 /* eslint-disable no-unused-vars */
 import React from "react";
 import FireIcon from "../SVG/FireIcon";
-import { Text, View, StyleSheet } from "react-native";
+import { Text, View, StyleSheet, Dimensions } from "react-native";
 import LitButton from "../LitButton";
+
+let { height, width } = Dimensions.get("window");
 
 function PlaceCard(props) {
   return (
@@ -35,10 +37,10 @@ function PlaceCard(props) {
 }
 
 const placeCard = {
-  height: 160,
+  height: height * 0.25,
   backgroundColor: "#202020",
   flexDirection: "column",
-  width: 335,
+  width: width * 0.9,
   marginBottom: 50,
   padding: 15,
   shadowColor: "#000",
