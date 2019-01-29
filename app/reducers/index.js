@@ -1,5 +1,5 @@
 import Actions from "../constants/actions";
-import ViewMode from "../constants/viewMode";
+import Views from "../constants/views";
 
 const initialState = {
   deviceId: "",
@@ -54,16 +54,11 @@ const initialState = {
     lngDelta: 0.0421
   },
   token: "",
-  viewMode: ViewMode.MAP
+  view: Views.LOADING
 };
 
 const rootReducer = (state = initialState, action) => {
   switch (action.type) {
-    case Actions.CHANGE_VIEW:
-      return {
-        ...state,
-        viewMode: action.payload
-      };
     case Actions.MAP_IS_READY:
       return {
         ...state,
@@ -98,6 +93,11 @@ const rootReducer = (state = initialState, action) => {
       return {
         ...state,
         token: action.payload
+      };
+    case Actions.SET_VIEW:
+      return {
+        ...state,
+        view: action.payload
       };
     default:
       return state;

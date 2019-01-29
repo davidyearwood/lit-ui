@@ -22,33 +22,34 @@ import {
   ScrollView,
   FlatList
 } from "react-native";
+import { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { connect, Provider } from "react-redux";
 import uuidv4 from "uuid/v4";
 import {
-  changeView,
   mapIsReady,
   setDeviceId,
   setError,
   setInfo,
   setRegion,
   setPlaces,
-  setToken
+  setToken,
+  setView
 } from "./app/actions";
+import LitConstants from "./app/constants/lit";
+import Views from "./app/constants/views";
 import litApi from "./app/api/api";
-import SearchBar from "./app/components/SearchBar";
 import litMapStyle from "./app/components/LitMap/litMapStyle";
-import LitMapView from "./app/components/litMapView";
 import LitMarkers from "./app/components/LitMarker/LitMarkers";
+import LitMapView from "./app/components/litMapView";
+import LoadingScreen from "./app/components/LoadingScreen";
 import LoginScreen from "./app/components/LoginScreen";
+import PlaceCard from "./app/components/PlaceCard";
+import SearchBar from "./app/components/SearchBar";
 import SearchResult from "./app/components/SearchResult";
 import SettingButton from "./app/components/SettingButton";
 import UserMarkerIcon from "./app/components/SVG/UserMarkerIcon";
-import LitConstants from "./app/constants/lit";
-import ViewMode from "./app/constants/viewMode";
-import { INSTAGRAM_ID } from "./credentials";
 import store from "./app/stores";
-import { Marker, PROVIDER_GOOGLE } from "react-native-maps";
-import PlaceCard from "./app/components/PlaceCard";
+import { INSTAGRAM_ID } from "./credentials";
 
 TaskManager.defineTask(
   LitConstants.TASK_SET_DEVICE_LOCATION,
@@ -75,13 +76,13 @@ TaskManager.defineTask(
 const mapStateToProps = state => state;
 
 const mapDispatchToProps = dispatch => ({
-  changeView: viewMode => dispatch(changeView(viewMode)),
   mapIsReady: ready => dispatch(mapIsReady(ready)),
   setDeviceId: id => dispatch(setDeviceId(id)),
   setInfo: info => dispatch(setInfo(info)),
   setPlaces: places => dispatch(setPlaces(places)),
   setRegion: region => dispatch(setRegion(region)),
-  setToken: token => dispatch(setToken(token))
+  setToken: token => dispatch(setToken(token)),
+  setView: view => dispatch(setView(view))
 });
 
 class ConnectedApp extends React.Component {
@@ -139,6 +140,7 @@ class ConnectedApp extends React.Component {
               const token = match[0].substring(6);
               AsyncStorage.setItem(LitConstants.TOKEN_LABEL, token);
               this.props.setToken(token);
+              this.props.setView(Views.DEFAULT);
               console.log("[js] New Token:", token);
             }
           }
@@ -173,6 +175,9 @@ class ConnectedApp extends React.Component {
     AsyncStorage.getItem(LitConstants.TOKEN_LABEL).then(token => {
       if (token !== null) {
         this.props.setToken(token);
+        this.props.setView(Views.DEFAULT);
+      } else {
+        this.props.setView(Views.LOGIN);
       }
       console.log("[js] TOKEN:", token);
     });
@@ -195,7 +200,7 @@ class ConnectedApp extends React.Component {
   // TODO: Acording with the documentation, goBack should be async
   // https://facebook.github.io/react-native/docs/backhandler.html#docsNav
   goBack() {
-    this.props.changeView(ViewMode.MAP);
+    this.props.setView(View.MAP);
   }
 
   // Handles input when the back button is pressed (Android only)
@@ -208,7 +213,7 @@ class ConnectedApp extends React.Component {
   }
 
   onMainScreen() {
-    return this.props.viewMode === ViewMode.MAP;
+    return this.props.view === View.MAP;
   }
 
   onMapLayout() {
@@ -216,7 +221,7 @@ class ConnectedApp extends React.Component {
   }
 
   onMarkerPressed(name) {
-    this.props.changeView(ViewMode.INFO);
+    this.props.view(View.INFO);
     this.props.setInfo({ name: name });
   }
 
@@ -248,7 +253,7 @@ class ConnectedApp extends React.Component {
 
   render() {
     // Asumes that having a token is the same that bein logged.
-    if (this.props.token) {
+    if (this.props.view === Views.MAP) {
       let { region, places } = this.props;
       let regionLatLng = {
         latitude: region.lat,
@@ -299,13 +304,14 @@ class ConnectedApp extends React.Component {
           />
         </View>
       );
+    } else if (this.props.view === Views.LOGIN) {
+      return <LoginScreen callback={this._loginWithInstagram} />;
     }
-    return <LoginScreen callback={this._loginWithInstagram} />;
+    return <LoadingScreen />;
   }
 
   static get propTypes() {
     return {
-      changeView: PropTypes.func,
       places: PropTypes.array,
       mapIsReady: PropTypes.func,
       region: PropTypes.object,
@@ -314,8 +320,9 @@ class ConnectedApp extends React.Component {
       setPlaces: PropTypes.func,
       setRegion: PropTypes.func,
       setToken: PropTypes.func,
+      setView: PropTypes.func,
       token: PropTypes.string,
-      viewMode: PropTypes.string
+      view: PropTypes.string
     };
   }
 }

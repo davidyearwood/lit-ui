@@ -1,10 +1,5 @@
 import Actions from "../constants/actions";
 
-export const changeView = viewMode => ({
-  type: Actions.CHANGE_VIEW,
-  payload: viewMode
-});
-
 export const mapIsReady = ready => ({
   type: Actions.MAP_IS_READY,
   payload: ready
@@ -38,4 +33,9 @@ export const setRegion = region => ({
 export const setToken = token => ({
   type: Actions.SET_TOKEN,
   payload: token
+});
+
+export const setView = view => ({
+  type: Actions.SET_VIEW,
+  payload: view
 });
