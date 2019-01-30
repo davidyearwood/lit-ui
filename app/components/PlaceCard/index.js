@@ -1,14 +1,14 @@
 /* eslint-disable no-unused-vars */
 import React from "react";
 import FireIcon from "../SVG/FireIcon";
-import { Text, View, StyleSheet, Dimensions } from "react-native";
+import { Text, View, StyleSheet, Dimensions, Animated } from "react-native";
 import LitButton from "../LitButton";
 
 let { height, width } = Dimensions.get("window");
 
 function PlaceCard(props) {
   return (
-    <View style={styles.placeCard}>
+    <Animated.View style={[styles.placeCard, props.style]}>
       <Text style={styles.placeName}>{props.placeName}</Text>
       <View style={[styles.placeRow, styles.centerHor]}>
         <FireIcon />
@@ -23,7 +23,7 @@ function PlaceCard(props) {
         <Text style={styles.text}>{props.placeDistance}</Text>
       </View>
       <LitButton text="Check-in" />
-    </View>
+    </Animated.View>
   );
 }
 

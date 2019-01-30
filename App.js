@@ -79,6 +79,9 @@ class ConnectedApp extends React.Component {
   constructor(props) {
     super(props);
 
+    this.index = 0;
+    this.animation = new Animated.Value(0);
+
     this.goBack = this.goBack.bind(this);
     this.onBackPress = this.onBackPress.bind(this);
     this.onMainScreen = this.onMainScreen.bind(this);
@@ -209,6 +212,21 @@ class ConnectedApp extends React.Component {
     };
 
     const PLACE_CARD_WIDTH = width * 0.9 + 30;
+    const interpolations = places.map((place, index) => {
+      const inputRange = [
+        (index - 1) * PLACE_CARD_WIDTH,
+        index * PLACE_CARD_WIDTH,
+        (index + 1) * PLACE_CARD_WIDTH
+      ];
+
+      const scale = this.animation.interpolate({
+        inputRange,
+        outputRange: [1, 2, 1],
+        extrapolate: "clamp"
+      });
+
+      return { scale };
+    });
 
     return (
       <View
@@ -240,8 +258,24 @@ class ConnectedApp extends React.Component {
           snapToInterval={PLACE_CARD_WIDTH}
           snapToAlignment="end"
           style={styles.scrollView}
+          showsHorizontalScrollIndicator={false}
+          scrollEventThrottle={100}
+          snapToOffsets={places.map((place, index) => index * PLACE_CARD_WIDTH)}
+          decelerationRate="fast"
+          onScroll={Animated.event(
+            [
+              {
+                nativeEvent: {
+                  contentOffset: {
+                    x: this.animation
+                  }
+                }
+              }
+            ],
+            { useNativeDriver: true }
+          )}
         >
-          {places.map(item => {
+          {places.map((item, index) => {
             return (
               <PlaceCard
                 key={item.id}
