@@ -16,6 +16,12 @@ function LitButton(props) {
   );
 }
 
+LitButton.propTypes = {
+  onPress: PropTypes.func,
+  styles: PropTypes.object,
+  text: PropTypes.string
+};
+
 const styles = StyleSheet.create({
   button: {
     backgroundColor: "#AD4545",

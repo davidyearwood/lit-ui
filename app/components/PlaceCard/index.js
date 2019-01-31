@@ -3,6 +3,7 @@ import React from "react";
 import FireIcon from "../SVG/FireIcon";
 import { Text, View, StyleSheet, Dimensions, Animated } from "react-native";
 import LitButton from "../LitButton";
+import PropTypes from "prop-types";
 
 let { height, width } = Dimensions.get("window");
 
@@ -26,6 +27,14 @@ function PlaceCard(props) {
     </Animated.View>
   );
 }
+
+PlaceCard.propTypes = {
+  litScore: PropTypes.number,
+  placeAddress: PropTypes.string,
+  placeDistance: PropTypes.string,
+  placeName: PropTypes.string,
+  style: PropTypes.object
+};
 
 const placeCard = {
   height: height * 0.25,

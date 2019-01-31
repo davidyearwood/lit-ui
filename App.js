@@ -1,7 +1,16 @@
 /* eslint-disable no-console  */
 /* eslint-disable no-unused-vars */
 import axios from "axios";
-import { Constants, Location, Permissions, TaskManager } from "expo";
+import {
+  Constants,
+  Permissions,
+  Linking,
+  Location,
+  MapView,
+  TaskManager,
+  WebBrowser
+} from "expo";
+import PropTypes from "prop-types";
 import React from "react";
 import {
   AsyncStorage,
@@ -15,64 +24,66 @@ import {
   Dimensions,
   Animated
 } from "react-native";
+import { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { connect, Provider } from "react-redux";
+import uuidv4 from "uuid/v4";
 import {
-  changeView,
   mapIsReady,
-  setDeviceId,
+  setError,
   setInfo,
   setRegion,
   setPlaces,
-  setError
-} from "./app/actions/actions";
-import ViewMode from "./app/constants/viewMode";
-import store from "./app/stores/store";
-import SearchResult from "./app/components/SearchResult";
-import SearchBar from "./app/components/SearchBar";
-import SettingButton from "./app/components/SettingButton";
-import litApi from "./app/api/api";
+  setToken,
+  setView
+} from "./app/actions";
 import LitConstants from "./app/constants/lit";
-import uuidv4 from "uuid/v4";
-import LitMapView from "./app/components/litMapView";
-import { MapView } from "expo";
-import LitMarkers from "./app/components/LitMarker/LitMarkers";
-import UserMarkerIcon from "./app/components/SVG/UserMarkerIcon";
-import { Marker, PROVIDER_GOOGLE } from "react-native-maps";
+import Views from "./app/constants/views";
+import litApi from "./app/api/api";
 import litMapStyle from "./app/components/LitMap/litMapStyle";
+import LitMarkers from "./app/components/LitMarker/LitMarkers";
+import LitMapView from "./app/components/litMapView";
+import LoadingScreen from "./app/components/LoadingScreen";
+import LoginScreen from "./app/components/LoginScreen";
 import PlaceCard from "./app/components/PlaceCard";
+import SCearchBar from "./app/components/SearchBar";
+import SearchResult from "./app/components/SearchResult";
+import SettingButton from "./app/components/SettingButton";
+import UserMarkerIcon from "./app/components/SVG/UserMarkerIcon";
+import store from "./app/stores";
+import { INSTAGRAM_ID } from "./credentials";
 
 let { height, width } = Dimensions.get("window");
-// TaskManager.defineTask(
-//   LitConstants.TASK_SET_DEVICE_LOCATION,
-//   ({ data, error }) => {
-//     if (error) {
-//       console.log("[js] TaskManager error:", error);
-//     }
-//     if (data) {
-//       // AsyncStorage.getItem(LitConstants.DEVICE_ID_LABEL).then(id => {
-//       //   litApi
-//       //     .setDeviceLocation(id, "ChIJUcXdzOr_0YURd95z59ZBAYc")
-//       //     .then(response => {
-//       //       // Do something with the response
-//       //     })
-//       //     .catch(error => {
-//       //       console.log('[js] Unable to set location:', error);
-//       //     });
-//       // });
-//       console.log("[js] TaskManager", data);
-//     }
-//   }
-// );
+TaskManager.defineTask(
+  LitConstants.TASK_SET_DEVICE_LOCATION,
+  ({ data, error }) => {
+    if (error) {
+      console.log("[js] TaskManager error:", error);
+    }
+    if (data) {
+      // NOTE - Code commented because the API changed
+      // const device_id = Constants.installationId;
+      // litApi
+      //   .setDeviceLocation(id, "ChIJUcXdzOr_0YURd95z59ZBAYc")
+      //   .then(response => {
+      //     // Do something with the response
+      //   })
+      //   .catch(error => {
+      //     console.log("[js] Unable to set location:", error);
+      //   });
+      console.log("[js] TaskManager", data);
+    }
+  }
+);
 
 const mapStateToProps = state => state;
 
 const mapDispatchToProps = dispatch => ({
-  changeView: viewMode => dispatch(changeView(viewMode)),
   mapIsReady: ready => dispatch(mapIsReady(ready)),
-  setDeviceId: id => dispatch(setDeviceId(id)),
   setInfo: info => dispatch(setInfo(info)),
+  setPlaces: places => dispatch(setPlaces(places)),
   setRegion: region => dispatch(setRegion(region)),
-  setPlaces: places => dispatch(setPlaces(places))
+  setToken: token => dispatch(setToken(token)),
+  setView: view => dispatch(setView(view))
 });
 
 class ConnectedApp extends React.Component {
@@ -89,6 +100,8 @@ class ConnectedApp extends React.Component {
     this.onMarkerPressed = this.onMarkerPressed.bind(this);
     this.updateDeviceLocation = this.updateDeviceLocation.bind(this);
     this.updatePlaces = this.updatePlaces.bind(this);
+    this._loginWithInstagram = this._loginWithInstagram.bind(this);
+    this._initServices = this._initServices.bind(this);
   }
 
   async _getDeviceLocationAsync() {
@@ -113,8 +126,9 @@ class ConnectedApp extends React.Component {
     };
   }
 
-  componentDidMount() {
-    BackHandler.addEventListener("hardwareBackPress", this.onBackPress);
+  _initServices() {
+    // Sets device location
+    this.updateDeviceLocation(true);
 
     // Fetch device location in the background
     Location.startLocationUpdatesAsync(LitConstants.TASK_SET_DEVICE_LOCATION, {
@@ -122,26 +136,57 @@ class ConnectedApp extends React.Component {
     });
   }
 
-  componentWillMount() {
-    // Sets a unique id when the app is launched for the first time.
-    AsyncStorage.getItem(LitConstants.DEVICE_ID_LABEL)
-      .then(id => {
-        if (id === null || !id.match(/\w{8}-\w{4}-\w{4}-\w{4}-\w{12}/)) {
-          const new_id = uuidv4();
-          AsyncStorage.setItem(LitConstants.DEVICE_ID_LABEL, new_id)
-            // .then(() => console.log("Device ID: ", new_id))
-            .catch(error => console.log("Error saving data:", error));
-        } else {
-          // console.log("Device ID: ", id);
-          this.props.setDeviceId(id);
-        }
-      })
-      .catch(error => {
-        console.log("Error fetching data:", error);
-      });
+  async _loginWithInstagram() {
+    try {
+      const deep_link = Linking.makeUrl(LitConstants.INSTAGRAM_DEEP_LINK);
+      const url =
+        `https://api.instagram.com/oauth/authorize/` +
+        `?client_id=${INSTAGRAM_ID}` +
+        `&redirect_uri=${LitConstants.REDIRECT_URL}` +
+        `&response_type=code` +
+        `&state=${deep_link}`;
+      console.log("[js] url:", url);
+      WebBrowser.openAuthSessionAsync(url, deep_link)
+        .then(result => {
+          if (result.type === "success") {
+            const token_regex = /token=\w+\.\w+\.\w+/;
+            const match = result.url.match(token_regex);
+            if (match) {
+              const token = match[0].substring(6);
+              AsyncStorage.setItem(LitConstants.TOKEN_LABEL, token);
+              this.props.setToken(token);
+              this.props.setView(Views.DEFAULT);
+              this._initServices();
+              console.log("[js] New Token:", token);
+            }
+          }
+        })
+        .catch(error => console.log("[js] WebBrowser Error:", error));
 
-    // Sets device location
-    this.updateDeviceLocation(true);
+      // this._removeLoginListener();
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  componentDidMount() {
+    // Unique device id
+    console.log("[js] Installation ID:", Constants.installationId);
+
+    // Retrieves the api token if one is available
+    // Asumes that having a token is the same that bein logged.
+    AsyncStorage.getItem(LitConstants.TOKEN_LABEL).then(token => {
+      if (token !== null) {
+        this.props.setToken(token);
+        this.props.setView(Views.DEFAULT);
+        this._initServices();
+      } else {
+        this.props.setView(Views.LOGIN);
+      }
+      console.log("[js] TOKEN:", token);
+    });
+
+    BackHandler.addEventListener("hardwareBackPress", this.onBackPress);
   }
 
   componentWillUnmount() {
@@ -151,7 +196,7 @@ class ConnectedApp extends React.Component {
   // TODO: Acording with the documentation, goBack should be async
   // https://facebook.github.io/react-native/docs/backhandler.html#docsNav
   goBack() {
-    this.props.changeView(ViewMode.MAP);
+    this.props.setView(View.MAP);
   }
 
   // Handles input when the back button is pressed (Android only)
@@ -164,7 +209,7 @@ class ConnectedApp extends React.Component {
   }
 
   onMainScreen() {
-    return this.props.viewMode === ViewMode.MAP;
+    return this.props.view === View.MAP;
   }
 
   onMapLayout() {
@@ -172,8 +217,8 @@ class ConnectedApp extends React.Component {
   }
 
   onMarkerPressed(name) {
-    this.props.changeView(ViewMode.INFO);
-    this.props.setInfo({ name: name });
+    this.props.view(View.INFO);
+    this.props.setInfo({ name });
   }
 
   updateDeviceLocation(fetchLocations = false) {
@@ -203,95 +248,112 @@ class ConnectedApp extends React.Component {
   }
 
   render() {
-    let { region, places } = this.props;
-    let regionLatLng = {
-      latitude: region.lat,
-      longitude: region.lng,
-      latitudeDelta: region.latDelta,
-      longitudeDelta: region.lngDelta
-    };
+    if (this.props.view === Views.MAP) {
+      let { region, places } = this.props;
+      let regionLatLng = {
+        latitude: region.lat,
+        longitude: region.lng,
+        latitudeDelta: region.latDelta,
+        longitudeDelta: region.lngDelta
+      };
 
-    const PLACE_CARD_WIDTH = width * 0.9 + 30;
-    const interpolations = places.map((place, index) => {
-      const inputRange = [
-        (index - 1) * PLACE_CARD_WIDTH,
-        index * PLACE_CARD_WIDTH,
-        (index + 1) * PLACE_CARD_WIDTH
-      ];
+      const PLACE_CARD_WIDTH = width * 0.9 + 30;
+      const interpolations = places.map((place, index) => {
+        const inputRange = [
+          (index - 1) * PLACE_CARD_WIDTH,
+          index * PLACE_CARD_WIDTH,
+          (index + 1) * PLACE_CARD_WIDTH
+        ];
 
-      const scale = this.animation.interpolate({
-        inputRange,
-        outputRange: [1, 2, 1],
-        extrapolate: "clamp"
+        const scale = this.animation.interpolate({
+          inputRange,
+          outputRange: [1, 2, 1],
+          extrapolate: "clamp"
+        });
+
+        return { scale };
       });
 
-      return { scale };
-    });
-
-    return (
-      <View
-        style={{
-          flex: 1,
-          flexDirection: "column"
-        }}
-      >
-        <MapView
-          region={regionLatLng}
+      return (
+        <View
           style={{
             flex: 1,
-            position: "absolute",
-            top: 0,
-            bottom: 0,
-            left: 0,
-            right: 0
+            flexDirection: "column"
           }}
-          customMapStyle={litMapStyle}
-          provider={PROVIDER_GOOGLE}
         >
-          <LitMarkers places={places} />
-          <Marker coordinate={regionLatLng} title="user">
-            <UserMarkerIcon />
-          </Marker>
-        </MapView>
-        <Animated.ScrollView
-          horizontal={true}
-          snapToInterval={PLACE_CARD_WIDTH}
-          snapToAlignment="end"
-          style={styles.scrollView}
-          showsHorizontalScrollIndicator={false}
-          scrollEventThrottle={100}
-          snapToOffsets={places.map((place, index) => index * PLACE_CARD_WIDTH)}
-          decelerationRate="fast"
-          onScroll={Animated.event(
-            [
-              {
-                nativeEvent: {
-                  contentOffset: {
-                    x: this.animation
+          <MapView
+            region={regionLatLng}
+            style={{
+              flex: 1,
+              flexDirection: "column"
+            }}
+          >
+            <LitMarkers places={places} />
+            <Marker coordinate={regionLatLng} title="user">
+              <UserMarkerIcon />
+            </Marker>
+          </MapView>
+          <Animated.ScrollView
+            horizontal={true}
+            snapToInterval={PLACE_CARD_WIDTH}
+            snapToAlignment="end"
+            style={styles.scrollView}
+            showsHorizontalScrollIndicator={false}
+            scrollEventThrottle={100}
+            snapToOffsets={places.map(
+              (place, index) => index * PLACE_CARD_WIDTH
+            )}
+            decelerationRate="fast"
+            onScroll={Animated.event(
+              [
+                {
+                  nativeEvent: {
+                    contentOffset: {
+                      x: this.animation
+                    }
                   }
                 }
-              }
-            ],
-            { useNativeDriver: true }
-          )}
-        >
-          {places.map((item, index) => {
-            return (
-              <PlaceCard
-                key={item.id}
-                placeName={item.name}
-                placeAddress="123 F. Street chicago, IL"
-                placeDistance="4m away"
-                litScore={item.litness}
-                onPress={() => console.log("pressed!")}
-              />
-            );
-          })}
-        </Animated.ScrollView>
-      </View>
-    );
+              ],
+              { useNativeDriver: true }
+            )}
+          >
+            {places.map((item, index) => {
+              return (
+                <PlaceCard
+                  key={item.id}
+                  placeName={item.name}
+                  placeAddress="123 F. Street chicago, IL"
+                  placeDistance="4m away"
+                  litScore={item.litness}
+                  onPress={() => console.log("pressed!")}
+                />
+              );
+            })}
+          </Animated.ScrollView>
+        </View>
+      );
+    } else if (this.props.view === Views.LOGIN) {
+      return <LoginScreen callback={this._loginWithInstagram} />;
+    }
+    return <LoadingScreen />;
+  }
+
+  static get propTypes() {
+    return {
+      places: PropTypes.array,
+      mapIsReady: PropTypes.func,
+      region: PropTypes.object,
+      setInfo: PropTypes.func,
+      setPlaces: PropTypes.func,
+      setRegion: PropTypes.func,
+      setToken: PropTypes.func,
+      setView: PropTypes.func,
+      token: PropTypes.string,
+      view: PropTypes.string
+    };
   }
 }
+
 const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
@@ -311,13 +373,15 @@ const styles = StyleSheet.create({
 });
 
 // eslint-disable-next-line no-unused-vars
-const App = connect(
+const Lit = connect(
   mapStateToProps,
   mapDispatchToProps
 )(ConnectedApp);
 
-export default () => (
+const App = () => (
   <Provider store={store}>
-    <App />
+    <Lit />
   </Provider>
 );
+
+export default App;

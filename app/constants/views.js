@@ -1,0 +1,9 @@
+const DEFAULT_VIEW = "MAP";
+
+export default {
+  DEFAULT: DEFAULT_VIEW,
+  INFO: "INFO",
+  LOADING: "LOADING",
+  LOGIN: "LOGIN",
+  MAP: DEFAULT_VIEW
+};
