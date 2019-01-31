@@ -24,7 +24,12 @@ import {
   Dimensions,
   Animated
 } from "react-native";
-import { Marker, PROVIDER_GOOGLE } from "react-native-maps";
+import {
+  Marker,
+  PROVIDER_GOOGLE,
+  Animated as AnimatedMap,
+  AnimatedRegion
+} from "react-native-maps";
 import { connect, Provider } from "react-redux";
 import uuidv4 from "uuid/v4";
 import {
@@ -41,6 +46,7 @@ import Views from "./app/constants/views";
 import litApi from "./app/api/api";
 import litMapStyle from "./app/components/LitMap/litMapStyle";
 import LitMarkers from "./app/components/LitMarker/LitMarkers";
+import LitMarker from "./app/components/LitMarker/LitMarker";
 import LitMapView from "./app/components/litMapView";
 import LoadingScreen from "./app/components/LoadingScreen";
 import LoginScreen from "./app/components/LoginScreen";
@@ -52,28 +58,30 @@ import UserMarkerIcon from "./app/components/SVG/UserMarkerIcon";
 import store from "./app/stores";
 import { INSTAGRAM_ID } from "./credentials";
 
-let { height, width } = Dimensions.get("window");
-TaskManager.defineTask(
-  LitConstants.TASK_SET_DEVICE_LOCATION,
-  ({ data, error }) => {
-    if (error) {
-      console.log("[js] TaskManager error:", error);
-    }
-    if (data) {
-      // NOTE - Code commented because the API changed
-      // const device_id = Constants.installationId;
-      // litApi
-      //   .setDeviceLocation(id, "ChIJUcXdzOr_0YURd95z59ZBAYc")
-      //   .then(response => {
-      //     // Do something with the response
-      //   })
-      //   .catch(error => {
-      //     console.log("[js] Unable to set location:", error);
-      //   });
-      console.log("[js] TaskManager", data);
-    }
-  }
-);
+const { height, width } = Dimensions.get("window");
+const PLACE_CARD_WIDTH = width * 0.9 + 30;
+// TaskManager.defineTask(
+//   LitConstants.TASK_SET_DEVICE_LOCATION,
+
+//   ({ data, error }) => {
+//     if (error) {
+//       console.log("[js] TaskManager error:", error);
+//     }
+//     if (data) {
+//       // NOTE - Code commented because the API changed
+//       // const device_id = Constants.installationId;
+//       // litApi
+//       //   .setDeviceLocation(id, "ChIJUcXdzOr_0YURd95z59ZBAYc")
+//       //   .then(response => {
+//       //     // Do something with the response
+//       //   })
+//       //   .catch(error => {
+//       //     console.log("[js] Unable to set location:", error);
+//       //   });
+//       console.log("[js] TaskManager", data);
+//     }
+//   }
+// );
 
 const mapStateToProps = state => state;
 
@@ -186,11 +194,42 @@ class ConnectedApp extends React.Component {
       console.log("[js] TOKEN:", token);
     });
 
+    this.animation.addListener(({ value }) => {
+      let index = Math.floor(value / PLACE_CARD_WIDTH);
+      const { places } = this.props;
+
+      if (index >= places.length) {
+        index = places.lenght - 1;
+      }
+
+      if (index <= 0) {
+        index = 0;
+      }
+
+      clearTimeout(this.regionTimeout);
+      this.regionTimeout = setTimeout(() => {
+        if (this.index !== index) {
+          this.index = index;
+          const { lat, lng } = places[index].location;
+          this.map.animateToRegion(
+            {
+              latitude: lat,
+              longitude: lng,
+              latitudeDelta: 0.0922,
+              longitudeDelta: 0.0421
+            },
+            350
+          );
+        }
+      }, 10);
+    });
+
     BackHandler.addEventListener("hardwareBackPress", this.onBackPress);
   }
 
   componentWillUnmount() {
     BackHandler.removeEventListener("hardwareBackPress", this.onBackPress);
+    this.animation.removeAllListeners();
   }
 
   // TODO: Acording with the documentation, goBack should be async
@@ -238,8 +277,8 @@ class ConnectedApp extends React.Component {
   }
 
   updatePlaces(radius = 10000) {
-    const lat = this.props.region.lat;
-    const lng = this.props.region.lng;
+    const { lat, lng } = this.props;
+
     litApi
       .getLocations(lat, lng, radius)
       .then(places => this.props.setPlaces(places.result))
@@ -248,96 +287,114 @@ class ConnectedApp extends React.Component {
   }
 
   render() {
-    if (this.props.view === Views.MAP) {
-      let { region, places } = this.props;
-      let regionLatLng = {
-        latitude: region.lat,
-        longitude: region.lng,
-        latitudeDelta: region.latDelta,
-        longitudeDelta: region.lngDelta
-      };
+    // if (this.props.view === Views.MAP) {
+    let { region, places } = this.props;
 
-      const PLACE_CARD_WIDTH = width * 0.9 + 30;
-      const interpolations = places.map((place, index) => {
-        const inputRange = [
-          (index - 1) * PLACE_CARD_WIDTH,
-          index * PLACE_CARD_WIDTH,
-          (index + 1) * PLACE_CARD_WIDTH
-        ];
+    let regionLatLng = {
+      latitude: region.lat,
+      longitude: region.lng,
+      latitudeDelta: region.latDelta,
+      longitudeDelta: region.lngDelta
+    };
 
-        const scale = this.animation.interpolate({
-          inputRange,
-          outputRange: [1, 2, 1],
-          extrapolate: "clamp"
-        });
-
-        return { scale };
+    const interpolations = places.map((place, index) => {
+      const inputRange = [
+        (index - 1) * PLACE_CARD_WIDTH,
+        index * PLACE_CARD_WIDTH,
+        (index + 1) * PLACE_CARD_WIDTH
+      ];
+      const fill = this.animation.interpolate({
+        inputRange,
+        outputRange: ["#FFA183", "#AD4545", "#FFA183"],
+        extrapolate: "clamp"
       });
 
-      return (
-        <View
+      return { fill };
+    });
+
+    return (
+      <View
+        style={{
+          flex: 1,
+          flexDirection: "column"
+        }}
+      >
+        <MapView
+          initialRegion={regionLatLng}
           style={{
             flex: 1,
             flexDirection: "column"
           }}
+          customMapStyle={litMapStyle}
+          provider={PROVIDER_GOOGLE}
+          ref={map => (this.map = map)}
         >
-          <MapView
-            region={regionLatLng}
-            style={{
-              flex: 1,
-              flexDirection: "column"
-            }}
-          >
-            <LitMarkers places={places} />
-            <Marker coordinate={regionLatLng} title="user">
-              <UserMarkerIcon />
-            </Marker>
-          </MapView>
-          <Animated.ScrollView
-            horizontal={true}
-            snapToInterval={PLACE_CARD_WIDTH}
-            snapToAlignment="end"
-            style={styles.scrollView}
-            showsHorizontalScrollIndicator={false}
-            scrollEventThrottle={100}
-            snapToOffsets={places.map(
-              (place, index) => index * PLACE_CARD_WIDTH
-            )}
-            decelerationRate="fast"
-            onScroll={Animated.event(
-              [
-                {
-                  nativeEvent: {
-                    contentOffset: {
-                      x: this.animation
-                    }
+          {places.map((place, index) => {
+            let latLng = {
+              latitude: place.location.lat,
+              longitude: place.location.lng
+            };
+
+            return (
+              <LitMarker
+                coordinate={latLng}
+                title={place.name}
+                litness={place.litness}
+                key={place.id}
+                onPressCallout={() => {
+                  console.log(this.animation);
+                  console.log(interpolations[index].fill);
+                }}
+              />
+            );
+          })}
+          <Marker coordinate={regionLatLng} title="user">
+            <UserMarkerIcon />
+          </Marker>
+        </MapView>
+        <Animated.ScrollView
+          horizontal={true}
+          snapToInterval={PLACE_CARD_WIDTH}
+          snapToAlignment="end"
+          style={styles.scrollView}
+          showsHorizontalScrollIndicator={false}
+          scrollEventThrottle={1}
+          snapToOffsets={places.map((place, index) => index * PLACE_CARD_WIDTH)}
+          decelerationRate="fast"
+          onScroll={Animated.event(
+            [
+              {
+                nativeEvent: {
+                  contentOffset: {
+                    x: this.animation
                   }
                 }
-              ],
-              { useNativeDriver: true }
-            )}
-          >
-            {places.map((item, index) => {
-              return (
-                <PlaceCard
-                  key={item.id}
-                  placeName={item.name}
-                  placeAddress="123 F. Street chicago, IL"
-                  placeDistance="4m away"
-                  litScore={item.litness}
-                  onPress={() => console.log("pressed!")}
-                />
-              );
-            })}
-          </Animated.ScrollView>
-        </View>
-      );
-    } else if (this.props.view === Views.LOGIN) {
-      return <LoginScreen callback={this._loginWithInstagram} />;
-    }
-    return <LoadingScreen />;
+              }
+            ],
+            { useNativeDriver: true }
+          )}
+        >
+          {places.map((item, index) => {
+            return (
+              <PlaceCard
+                key={item.id}
+                placeName={item.name}
+                placeAddress="123 F. Street chicago, IL"
+                placeDistance="4m away"
+                litScore={item.litness}
+                onPress={() => console.log("pressed!")}
+              />
+            );
+          })}
+        </Animated.ScrollView>
+      </View>
+    );
+    //   } else if (this.props.view === Views.LOGIN) {
+    //     return <LoginScreen callback={this._loginWithInstagram} />;
+    //   }
+    //   return <LoadingScreen />;
+    // }
   }
-
   static get propTypes() {
     return {
       places: PropTypes.array,
@@ -349,7 +406,9 @@ class ConnectedApp extends React.Component {
       setToken: PropTypes.func,
       setView: PropTypes.func,
       token: PropTypes.string,
-      view: PropTypes.string
+      view: PropTypes.string,
+      lat: PropTypes.number,
+      lng: PropTypes.number
     };
   }
 }

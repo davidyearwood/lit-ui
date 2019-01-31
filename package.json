@@ -15,7 +15,7 @@
     "eslint-plugin-flowtype": "^2.50.3",
     "eslint-plugin-jsx-a11y": "^6.1.2",
     "eslint-plugin-prettier": "^3.0.1",
-    "eslint-plugin-react": "^7.12.2",
+    "eslint-plugin-react": "^7.12.4",
     "eslint-plugin-react-native": "^3.5.0",
     "eslint-plugin-relay": "0.0.28",
     "expo-task-manager-interface": "~1.0.0",
