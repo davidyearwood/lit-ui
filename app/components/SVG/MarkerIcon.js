@@ -24,6 +24,12 @@ function MarkerIcon(props) {
   );
 }
 
+MarkerIcon.propTypes = {
+  fill: PropTypes.string,
+  height: PropTypes.string,
+  width: PropTypes.string
+};
+
 MarkerIcon.defaultProps = {
   fill: "#FFA183",
   width: "25",

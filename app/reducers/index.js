@@ -1,8 +1,7 @@
-import Constants from "../constants/constants";
-import ViewMode from "../constants/viewMode";
+import Actions from "../constants/actions";
+import Views from "../constants/views";
 
 const initialState = {
-  deviceId: "",
   deviceLocation: "",
   errorMessage: null,
   isMapReady: false,
@@ -53,45 +52,46 @@ const initialState = {
     latDelta: 0.0922,
     lngDelta: 0.0421
   },
-  viewMode: ViewMode.MAP
+  token: "",
+  view: Views.LOADING
 };
 
 const rootReducer = (state = initialState, action) => {
   switch (action.type) {
-    case Constants.CHANGE_VIEW:
-      return {
-        ...state,
-        viewMode: action.payload
-      };
-    case Constants.MAP_IS_READY:
+    case Actions.MAP_IS_READY:
       return {
         ...state,
         isMapReady: action.payload
       };
-    case Constants.SET_INFO:
+    case Actions.SET_INFO:
       return {
         ...state,
         info: action.payload
       };
-    case Constants.SET_DEVICE_ID:
-      return {
-        ...state,
-        deviceId: action.payload
-      };
-    case Constants.SET_REGION:
+    case Actions.SET_REGION:
       return {
         ...state,
         region: action.payload
       };
-    case Constants.SET_PLACES:
+    case Actions.SET_PLACES:
       return {
         ...state,
         places: action.payload
       };
-    case Constants.SET_ERROR:
+    case Actions.SET_ERROR:
       return {
         ...state,
         errorMessage: action.payload
+      };
+    case Actions.SET_TOKEN:
+      return {
+        ...state,
+        token: action.payload
+      };
+    case Actions.SET_VIEW:
+      return {
+        ...state,
+        view: action.payload
       };
     default:
       return state;

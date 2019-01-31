@@ -3,6 +3,7 @@ import React from "react";
 import FireIcon from "../SVG/FireIcon";
 import { Text, View, StyleSheet } from "react-native";
 import LitButton from "../LitButton";
+import PropTypes from "prop-types";
 
 function PlaceCard(props) {
   return (
@@ -33,6 +34,13 @@ function PlaceCard(props) {
     </View>
   );
 }
+
+PlaceCard.propTypes = {
+  litScore: PropTypes.number,
+  placeAddress: PropTypes.string,
+  placeDistance: PropTypes.string,
+  placeName: PropTypes.string
+};
 
 const placeCard = {
   height: 160,
