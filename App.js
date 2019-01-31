@@ -337,7 +337,7 @@ class ConnectedApp extends React.Component {
 
             return (
               <LitMarker
-                coordinate={latLng}
+                LatLng={latLng}
                 title={place.name}
                 litness={place.litness}
                 key={place.id}
