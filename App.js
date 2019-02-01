@@ -215,8 +215,8 @@ class ConnectedApp extends React.Component {
             {
               latitude: lat,
               longitude: lng,
-              latitudeDelta: 0.0922,
-              longitudeDelta: 0.0421
+              latitudeDelta: 0.04864195044303443,
+              longitudeDelta: 0.040142817690068
             },
             350
           );
@@ -303,6 +303,7 @@ class ConnectedApp extends React.Component {
         index * PLACE_CARD_WIDTH,
         (index + 1) * PLACE_CARD_WIDTH
       ];
+
       const fill = this.animation.interpolate({
         inputRange,
         outputRange: ["#FFA183", "#AD4545", "#FFA183"],
@@ -328,12 +329,16 @@ class ConnectedApp extends React.Component {
           customMapStyle={litMapStyle}
           provider={PROVIDER_GOOGLE}
           ref={map => (this.map = map)}
+          zoomEnabled={true}
+          minZoomLevel={14}
         >
           {places.map((place, index) => {
             let latLng = {
               latitude: place.location.lat,
               longitude: place.location.lng
             };
+
+            let { fill } = interpolations[index];
 
             return (
               <LitMarker
@@ -345,6 +350,7 @@ class ConnectedApp extends React.Component {
                   console.log(this.animation);
                   console.log(interpolations[index].fill);
                 }}
+                fill={fill}
               />
             );
           })}
@@ -371,7 +377,7 @@ class ConnectedApp extends React.Component {
                 }
               }
             ],
-            { useNativeDriver: true }
+            { useNativeDriver: false }
           )}
         >
           {places.map((item, index) => {
