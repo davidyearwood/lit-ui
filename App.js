@@ -330,7 +330,7 @@ class ConnectedApp extends React.Component {
           provider={PROVIDER_GOOGLE}
           ref={map => (this.map = map)}
           zoomEnabled={true}
-          minZoomLevel={14}
+          minZoomLevel={15}
         >
           {places.map((place, index) => {
             let latLng = {
@@ -347,8 +347,7 @@ class ConnectedApp extends React.Component {
                 litness={place.litness}
                 key={place.id}
                 onPressCallout={() => {
-                  console.log(this.animation);
-                  console.log(interpolations[index].fill);
+                  console.log("pressed");
                 }}
                 fill={fill}
               />
