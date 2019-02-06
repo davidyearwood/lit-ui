@@ -287,119 +287,121 @@ class ConnectedApp extends React.Component {
   }
 
   render() {
-    // if (this.props.view === Views.MAP) {
-    let { region, places } = this.props;
+    if (this.props.view === Views.MAP) {
+      let { region, places } = this.props;
 
-    let regionLatLng = {
-      latitude: region.lat,
-      longitude: region.lng,
-      latitudeDelta: region.latDelta,
-      longitudeDelta: region.lngDelta
-    };
+      let regionLatLng = {
+        latitude: region.lat,
+        longitude: region.lng,
+        latitudeDelta: region.latDelta,
+        longitudeDelta: region.lngDelta
+      };
 
-    const interpolations = places.map((place, index) => {
-      const inputRange = [
-        (index - 1) * PLACE_CARD_WIDTH,
-        index * PLACE_CARD_WIDTH,
-        (index + 1) * PLACE_CARD_WIDTH
-      ];
+      const interpolations = places.map((place, index) => {
+        const inputRange = [
+          (index - 1) * PLACE_CARD_WIDTH,
+          index * PLACE_CARD_WIDTH,
+          (index + 1) * PLACE_CARD_WIDTH
+        ];
 
-      const fill = this.animation.interpolate({
-        inputRange,
-        outputRange: ["#FFA183", "#AD4545", "#FFA183"],
-        extrapolate: "clamp"
+        const fill = this.animation.interpolate({
+          inputRange,
+          outputRange: ["#FFA183", "#AD4545", "#FFA183"],
+          extrapolate: "clamp"
+        });
+
+        return { fill };
       });
 
-      return { fill };
-    });
-
-    return (
-      <View
-        style={{
-          flex: 1,
-          flexDirection: "column"
-        }}
-      >
-        <MapView
-          initialRegion={regionLatLng}
+      return (
+        <View
           style={{
             flex: 1,
             flexDirection: "column"
           }}
-          customMapStyle={litMapStyle}
-          provider={PROVIDER_GOOGLE}
-          ref={map => (this.map = map)}
-          zoomEnabled={true}
-          minZoomLevel={15}
         >
-          {places.map((place, index) => {
-            let latLng = {
-              latitude: place.location.lat,
-              longitude: place.location.lng
-            };
+          <MapView
+            initialRegion={regionLatLng}
+            style={{
+              flex: 1,
+              flexDirection: "column"
+            }}
+            customMapStyle={litMapStyle}
+            provider={PROVIDER_GOOGLE}
+            ref={map => (this.map = map)}
+            zoomEnabled={true}
+            minZoomLevel={15}
+          >
+            {places.map((place, index) => {
+              let latLng = {
+                latitude: place.location.lat,
+                longitude: place.location.lng
+              };
 
-            let { fill } = interpolations[index];
+              let { fill } = interpolations[index];
 
-            return (
-              <LitMarker
-                LatLng={latLng}
-                title={place.name}
-                litness={place.litness}
-                key={place.id}
-                onPressCallout={() => {
-                  console.log("pressed");
-                }}
-                fill={fill}
-              />
-            );
-          })}
-          <Marker coordinate={regionLatLng} title="user">
-            <UserMarkerIcon />
-          </Marker>
-        </MapView>
-        <Animated.ScrollView
-          horizontal={true}
-          snapToInterval={PLACE_CARD_WIDTH}
-          snapToAlignment="end"
-          style={styles.scrollView}
-          showsHorizontalScrollIndicator={false}
-          scrollEventThrottle={1}
-          snapToOffsets={places.map((place, index) => index * PLACE_CARD_WIDTH)}
-          decelerationRate="fast"
-          onScroll={Animated.event(
-            [
-              {
-                nativeEvent: {
-                  contentOffset: {
-                    x: this.animation
+              return (
+                <LitMarker
+                  LatLng={latLng}
+                  title={place.name}
+                  litness={place.litness}
+                  key={place.id}
+                  onPressCallout={() => {
+                    console.log("pressed");
+                  }}
+                  fill={fill}
+                />
+              );
+            })}
+            <Marker coordinate={regionLatLng} title="user">
+              <UserMarkerIcon />
+            </Marker>
+          </MapView>
+          <Animated.ScrollView
+            horizontal={true}
+            snapToInterval={PLACE_CARD_WIDTH}
+            snapToAlignment="end"
+            style={styles.scrollView}
+            showsHorizontalScrollIndicator={false}
+            scrollEventThrottle={1}
+            snapToOffsets={places.map(
+              (place, index) => index * PLACE_CARD_WIDTH
+            )}
+            decelerationRate="fast"
+            onScroll={Animated.event(
+              [
+                {
+                  nativeEvent: {
+                    contentOffset: {
+                      x: this.animation
+                    }
                   }
                 }
-              }
-            ],
-            { useNativeDriver: false }
-          )}
-        >
-          {places.map((item, index) => {
-            return (
-              <PlaceCard
-                key={item.id}
-                placeName={item.name}
-                placeAddress="123 F. Street chicago, IL"
-                placeDistance="4m away"
-                litScore={item.litness}
-                onPress={() => console.log("pressed!")}
-              />
-            );
-          })}
-        </Animated.ScrollView>
-      </View>
-    );
-    //   } else if (this.props.view === Views.LOGIN) {
-    //     return <LoginScreen callback={this._loginWithInstagram} />;
-    //   }
-    //   return <LoadingScreen />;
-    // }
+              ],
+              { useNativeDriver: false }
+            )}
+          >
+            {places.map((item, index) => {
+              return (
+                <PlaceCard
+                  key={item.id}
+                  placeName={item.name}
+                  placeAddress="123 F. Street chicago, IL"
+                  placeDistance="4m away"
+                  litScore={item.litness}
+                  onPress={() => console.log("pressed!")}
+                />
+              );
+            })}
+          </Animated.ScrollView>
+        </View>
+      );
+    } else if (this.props.view === Views.LOGIN) {
+      return <LoginScreen callback={this._loginWithInstagram} />;
+    }
+    return <LoadingScreen />;
   }
+
   static get propTypes() {
     return {
       places: PropTypes.array,
