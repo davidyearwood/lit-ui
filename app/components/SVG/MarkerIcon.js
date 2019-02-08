@@ -32,7 +32,7 @@ class MarkerIcon extends Component {
 }
 
 MarkerIcon.propTypes = {
-  fill: PropTypes.object,
+  fill: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
   height: PropTypes.string,
   width: PropTypes.string,
   styles: PropTypes.object
