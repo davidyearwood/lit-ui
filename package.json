@@ -52,12 +52,14 @@
   },
   "dependencies": {
     "axios": "^0.18.0",
+    "cross-fetch": "^3.0.1",
     "expo": "^32.0.0",
     "prop-types": "^15.6.2",
     "react": "16.5.0",
     "react-native": "https://github.com/expo/react-native/archive/sdk-32.0.0.tar.gz",
     "react-redux": "^5.0.7",
     "redux": "^4.0.0",
+    "redux-thunk": "^2.3.0",
     "uuid": "^3.3.2"
   }
 }

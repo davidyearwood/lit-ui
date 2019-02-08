@@ -1,4 +1,5 @@
 import Actions from "../constants/actions";
+import fetch from "cross-fetch";
 
 export const mapIsReady = ready => ({
   type: Actions.MAP_IS_READY,
@@ -34,3 +35,50 @@ export const setView = view => ({
   type: Actions.SET_VIEW,
   payload: view
 });
+
+export const requestPlaces = () => ({
+  type: Actions.FETCH_PLACES_REQUEST
+});
+
+export const receivePlaces = places => ({
+  type: Actions.FETCH_PLACES_SUCCESS,
+  payload: places
+});
+
+export const failToReceivePlaces = error => ({
+  type: Actions.FETCH_PLACES_FAILURE,
+  payload: error
+});
+
+/* 
+  {
+    lat: Number,
+    lng: Number,
+    radius: Number
+  }
+*/
+export function fetchPlaces(location) {
+  return function(dispatch) {
+    // Let State know that I am fetching for places
+    dispatch(requestPlaces());
+
+    let api_url = new URL(
+      "https://litapi.projectunicorn.net/api/locations?lat"
+    );
+
+    let params = {
+      lat: location.lat,
+      lng: location.lng,
+      radius: location.radius
+    };
+
+    api_url.search = new URLSearchParams(params);
+
+    return fetch(api_url)
+      .then(
+        response => response.json(),
+        error => dispatch(failToReceivePlaces(error))
+      )
+      .then(places => dispatch(receivePlaces(places)));
+  };
+}

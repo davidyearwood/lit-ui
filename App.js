@@ -22,7 +22,8 @@ import {
   ScrollView,
   FlatList,
   Dimensions,
-  Animated
+  Animated,
+  PanResponder
 } from "react-native";
 import {
   Marker,
@@ -39,7 +40,8 @@ import {
   setRegion,
   setPlaces,
   setToken,
-  setView
+  setView,
+  fetchPlaces
 } from "./app/actions";
 import LitConstants from "./app/constants/lit";
 import Views from "./app/constants/views";
@@ -60,28 +62,28 @@ import { INSTAGRAM_ID } from "./credentials";
 
 const { height, width } = Dimensions.get("window");
 const PLACE_CARD_WIDTH = width * 0.9 + 30;
-// TaskManager.defineTask(
-//   LitConstants.TASK_SET_DEVICE_LOCATION,
+TaskManager.defineTask(
+  LitConstants.TASK_SET_DEVICE_LOCATION,
 
-//   ({ data, error }) => {
-//     if (error) {
-//       console.log("[js] TaskManager error:", error);
-//     }
-//     if (data) {
-//       // NOTE - Code commented because the API changed
-//       // const device_id = Constants.installationId;
-//       // litApi
-//       //   .setDeviceLocation(id, "ChIJUcXdzOr_0YURd95z59ZBAYc")
-//       //   .then(response => {
-//       //     // Do something with the response
-//       //   })
-//       //   .catch(error => {
-//       //     console.log("[js] Unable to set location:", error);
-//       //   });
-//       console.log("[js] TaskManager", data);
-//     }
-//   }
-// );
+  ({ data, error }) => {
+    if (error) {
+      console.log("[js] TaskManager error:", error);
+    }
+    if (data) {
+      // NOTE - Code commented because the API changed
+      // const device_id = Constants.installationId;
+      // litApi
+      //   .setDeviceLocation(id, "ChIJUcXdzOr_0YURd95z59ZBAYc")
+      //   .then(response => {
+      //     // Do something with the response
+      //   })
+      //   .catch(error => {
+      //     console.log("[js] Unable to set location:", error);
+      //   });
+      console.log("[js] TaskManager", data);
+    }
+  }
+);
 
 const mapStateToProps = state => state;
 
@@ -91,7 +93,8 @@ const mapDispatchToProps = dispatch => ({
   setPlaces: places => dispatch(setPlaces(places)),
   setRegion: region => dispatch(setRegion(region)),
   setToken: token => dispatch(setToken(token)),
-  setView: view => dispatch(setView(view))
+  setView: view => dispatch(setView(view)),
+  fetchPlaes: location => dispatch(fetchPlaces(location))
 });
 
 class ConnectedApp extends React.Component {
@@ -110,6 +113,38 @@ class ConnectedApp extends React.Component {
     this.updatePlaces = this.updatePlaces.bind(this);
     this._loginWithInstagram = this._loginWithInstagram.bind(this);
     this._initServices = this._initServices.bind(this);
+
+    this._panResponder = PanResponder.create({
+      // Ask to be the responder:
+      onStartShouldSetPanResponder: (evt, gestureState) => true,
+      onMoveShouldSetPanResponder: (evt, gestureState) => true,
+      onPanResponderGrant: (evt, gestureState) => {
+        // The gesture has started. Show visual feedback so the user knows
+        // what is happening!
+        // gestureState.d{x,y} will be set to zero now
+      },
+      onPanResponderMove: (evt, gestureState) => {
+        // The most recent move distance is gestureState.move{X,Y}
+        // The accumulated gesture distance since becoming responder is
+        // gestureState.d{x,y}
+        // console.log(gestureState.dy);
+      },
+      onPanResponderTerminationRequest: (evt, gestureState) => true,
+      onPanResponderRelease: (evt, gestureState) => {
+        // The user has released all touches while this view is the
+        // responder. This typically means a gesture has succeeded
+        console.log(gestureState.dy);
+      },
+      onPanResponderTerminate: (evt, gestureState) => {
+        // Another component has become the responder, so this gesture
+        // should be cancelled
+      },
+      onShouldBlockNativeResponder: (evt, gestureState) => {
+        // Returns whether this component should block native components from becoming the JS
+        // responder. Returns true by default. Is currently only supported on android.
+        return true;
+      }
+    });
   }
 
   async _getDeviceLocationAsync() {
@@ -196,7 +231,7 @@ class ConnectedApp extends React.Component {
 
     this.animation.addListener(({ value }) => {
       let index = Math.floor(value / PLACE_CARD_WIDTH);
-      const { places } = this.props;
+      const { places } = this.props.places;
 
       if (index >= places.length) {
         index = places.lenght - 1;
@@ -218,7 +253,7 @@ class ConnectedApp extends React.Component {
               latitudeDelta: 0.04864195044303443,
               longitudeDelta: 0.040142817690068
             },
-            350
+            250
           );
         }
       }, 10);
@@ -279,17 +314,19 @@ class ConnectedApp extends React.Component {
   updatePlaces(radius = 10000) {
     const { lat, lng } = this.props;
 
-    litApi
-      .getLocations(lat, lng, radius)
-      .then(places => this.props.setPlaces(places.result))
-      .then(result => console.log(result))
-      .catch(error => console.log(error));
+    this.fetchPlaces({ lat, lng, radius });
+    // litApi
+    //   .getLocations(lat, lng, radius)
+    //   .then(places => this.props.setPlaces(places.result))
+    //   .then(result => console.log(result))
+    //   .catch(error => console.log(error));
   }
 
   render() {
+    //this.props.view === Views.MAP
     if (this.props.view === Views.MAP) {
-      let { region, places } = this.props;
-
+      let { region } = this.props;
+      let { places } = this.props.places;
       let regionLatLng = {
         latitude: region.lat,
         longitude: region.lng,
@@ -380,6 +417,7 @@ class ConnectedApp extends React.Component {
               ],
               { useNativeDriver: false }
             )}
+            {...this._panResponder.panHandlers}
           >
             {places.map((item, index) => {
               return (
@@ -404,7 +442,7 @@ class ConnectedApp extends React.Component {
 
   static get propTypes() {
     return {
-      places: PropTypes.array,
+      places: PropTypes.object,
       mapIsReady: PropTypes.func,
       region: PropTypes.object,
       setInfo: PropTypes.func,
@@ -432,7 +470,6 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     position: "absolute",
-    bottom: 30,
     left: 0,
     right: 0
   }
