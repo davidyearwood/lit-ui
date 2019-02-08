@@ -40,7 +40,8 @@ import {
   setRegion,
   setPlaces,
   setToken,
-  setView
+  setView,
+  fetchPlaces
 } from "./app/actions";
 import LitConstants from "./app/constants/lit";
 import Views from "./app/constants/views";
@@ -92,7 +93,8 @@ const mapDispatchToProps = dispatch => ({
   setPlaces: places => dispatch(setPlaces(places)),
   setRegion: region => dispatch(setRegion(region)),
   setToken: token => dispatch(setToken(token)),
-  setView: view => dispatch(setView(view))
+  setView: view => dispatch(setView(view)),
+  fetchPlaes: location => dispatch(fetchPlaces(location))
 });
 
 class ConnectedApp extends React.Component {
@@ -229,7 +231,7 @@ class ConnectedApp extends React.Component {
 
     this.animation.addListener(({ value }) => {
       let index = Math.floor(value / PLACE_CARD_WIDTH);
-      const { places } = this.props;
+      const { places } = this.props.places;
 
       if (index >= places.length) {
         index = places.lenght - 1;
@@ -312,17 +314,19 @@ class ConnectedApp extends React.Component {
   updatePlaces(radius = 10000) {
     const { lat, lng } = this.props;
 
-    litApi
-      .getLocations(lat, lng, radius)
-      .then(places => this.props.setPlaces(places.result))
-      .then(result => console.log(result))
-      .catch(error => console.log(error));
+    this.fetchPlaces({ lat, lng, radius });
+    // litApi
+    //   .getLocations(lat, lng, radius)
+    //   .then(places => this.props.setPlaces(places.result))
+    //   .then(result => console.log(result))
+    //   .catch(error => console.log(error));
   }
 
   render() {
+    //this.props.view === Views.MAP
     if (this.props.view === Views.MAP) {
-      let { region, places } = this.props;
-
+      let { region } = this.props;
+      let { places } = this.props.places;
       let regionLatLng = {
         latitude: region.lat,
         longitude: region.lng,
@@ -438,7 +442,7 @@ class ConnectedApp extends React.Component {
 
   static get propTypes() {
     return {
-      places: PropTypes.array,
+      places: PropTypes.object,
       mapIsReady: PropTypes.func,
       region: PropTypes.object,
       setInfo: PropTypes.func,
