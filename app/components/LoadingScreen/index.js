@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Component } from "react";
 import {
   ActivityIndicator,
   StatusBar,
@@ -7,6 +7,7 @@ import {
   View
 } from "react-native";
 import Logo from "../SVG/Logo.js";
+import { randomQuote } from "./phrases.js";
 
 const styles = StyleSheet.create({
   loadingScreen: {
@@ -27,25 +28,49 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center"
   },
-  text: {
+  quoteStyle: {
     color: "#fff",
     fontSize: 18,
     fontWeight: "normal",
     marginTop: 30,
-    textAlign: "center"
+    textAlign: "center",
+    width: "80%"
+  },
+  authorStyle: {
+    color: "#fff",
+    fontSize: 16,
+    fontStyle: "italic",
+    marginTop: 15,
+    textAlign: "right",
+    width: "80%"
   }
 });
 
-const LoadingScreen = () => (
-  <View style={styles.loadingScreen}>
-    <ActivityIndicator size={80} color="#fff" />
-    <Text style={styles.text}>
-      Good parties create a temporary youthfulness
-    </Text>
-    <View style={styles.logo}>
-      <Logo height={60} width={60} />
-    </View>
-  </View>
-);
+class LoadingScreen extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      text: randomQuote()
+    };
+  }
+
+  componentDidMount() {
+    setInterval(() => this.setState({ text: randomQuote() }), 5000);
+  }
+
+  render() {
+    const { quote, author } = this.state.text;
+    return (
+      <View style={styles.loadingScreen}>
+        <ActivityIndicator size={80} color="#fff" />
+        <Text style={styles.quoteStyle}>{quote}</Text>
+        {author && <Text style={styles.authorStyle}>- {author}</Text>}
+        <View style={styles.logo}>
+          <Logo height={60} width={60} />
+        </View>
+      </View>
+    );
+  }
+}
 
 export default LoadingScreen;
