@@ -20,9 +20,17 @@ import {
   View,
   Text,
   ScrollView,
-  FlatList
+  FlatList,
+  Dimensions,
+  Animated,
+  PanResponder
 } from "react-native";
-import { Marker, PROVIDER_GOOGLE } from "react-native-maps";
+import {
+  Marker,
+  PROVIDER_GOOGLE,
+  Animated as AnimatedMap,
+  AnimatedRegion
+} from "react-native-maps";
 import { connect, Provider } from "react-redux";
 import uuidv4 from "uuid/v4";
 import {
@@ -32,13 +40,15 @@ import {
   setRegion,
   setPlaces,
   setToken,
-  setView
+  setView,
+  fetchPlaces
 } from "./app/actions";
 import LitConstants from "./app/constants/lit";
 import Views from "./app/constants/views";
 import litApi from "./app/api/api";
 import litMapStyle from "./app/components/LitMap/litMapStyle";
 import LitMarkers from "./app/components/LitMarker/LitMarkers";
+import LitMarker from "./app/components/LitMarker/LitMarker";
 import LitMapView from "./app/components/litMapView";
 import LoadingScreen from "./app/components/LoadingScreen";
 import LoginScreen from "./app/components/LoginScreen";
@@ -50,8 +60,11 @@ import UserMarkerIcon from "./app/components/SVG/UserMarkerIcon";
 import store from "./app/stores";
 import { INSTAGRAM_ID } from "./credentials";
 
+const { height, width } = Dimensions.get("window");
+const PLACE_CARD_WIDTH = width * 0.9 + 30;
 TaskManager.defineTask(
   LitConstants.TASK_SET_DEVICE_LOCATION,
+
   ({ data, error }) => {
     if (error) {
       console.log("[js] TaskManager error:", error);
@@ -80,12 +93,16 @@ const mapDispatchToProps = dispatch => ({
   setPlaces: places => dispatch(setPlaces(places)),
   setRegion: region => dispatch(setRegion(region)),
   setToken: token => dispatch(setToken(token)),
-  setView: view => dispatch(setView(view))
+  setView: view => dispatch(setView(view)),
+  fetchPlaes: location => dispatch(fetchPlaces(location))
 });
 
 class ConnectedApp extends React.Component {
   constructor(props) {
     super(props);
+
+    this.index = 0;
+    this.animation = new Animated.Value(0);
 
     this.goBack = this.goBack.bind(this);
     this.onBackPress = this.onBackPress.bind(this);
@@ -96,6 +113,38 @@ class ConnectedApp extends React.Component {
     this.updatePlaces = this.updatePlaces.bind(this);
     this._loginWithInstagram = this._loginWithInstagram.bind(this);
     this._initServices = this._initServices.bind(this);
+
+    this._panResponder = PanResponder.create({
+      // Ask to be the responder:
+      onStartShouldSetPanResponder: (evt, gestureState) => true,
+      onMoveShouldSetPanResponder: (evt, gestureState) => true,
+      onPanResponderGrant: (evt, gestureState) => {
+        // The gesture has started. Show visual feedback so the user knows
+        // what is happening!
+        // gestureState.d{x,y} will be set to zero now
+      },
+      onPanResponderMove: (evt, gestureState) => {
+        // The most recent move distance is gestureState.move{X,Y}
+        // The accumulated gesture distance since becoming responder is
+        // gestureState.d{x,y}
+        // console.log(gestureState.dy);
+      },
+      onPanResponderTerminationRequest: (evt, gestureState) => true,
+      onPanResponderRelease: (evt, gestureState) => {
+        // The user has released all touches while this view is the
+        // responder. This typically means a gesture has succeeded
+        console.log(gestureState.dy);
+      },
+      onPanResponderTerminate: (evt, gestureState) => {
+        // Another component has become the responder, so this gesture
+        // should be cancelled
+      },
+      onShouldBlockNativeResponder: (evt, gestureState) => {
+        // Returns whether this component should block native components from becoming the JS
+        // responder. Returns true by default. Is currently only supported on android.
+        return true;
+      }
+    });
   }
 
   async _getDeviceLocationAsync() {
@@ -180,11 +229,42 @@ class ConnectedApp extends React.Component {
       console.log("[js] TOKEN:", token);
     });
 
+    this.animation.addListener(({ value }) => {
+      let index = Math.floor(value / PLACE_CARD_WIDTH);
+      const { places } = this.props.places;
+
+      if (index >= places.length) {
+        index = places.lenght - 1;
+      }
+
+      if (index <= 0) {
+        index = 0;
+      }
+
+      clearTimeout(this.regionTimeout);
+      this.regionTimeout = setTimeout(() => {
+        if (this.index !== index) {
+          this.index = index;
+          const { lat, lng } = places[index].location;
+          this.map.animateToRegion(
+            {
+              latitude: lat,
+              longitude: lng,
+              latitudeDelta: 0.04864195044303443,
+              longitudeDelta: 0.040142817690068
+            },
+            250
+          );
+        }
+      }, 10);
+    });
+
     BackHandler.addEventListener("hardwareBackPress", this.onBackPress);
   }
 
   componentWillUnmount() {
     BackHandler.removeEventListener("hardwareBackPress", this.onBackPress);
+    this.animation.removeAllListeners();
   }
 
   // TODO: Acording with the documentation, goBack should be async
@@ -232,24 +312,43 @@ class ConnectedApp extends React.Component {
   }
 
   updatePlaces(radius = 10000) {
-    const lat = this.props.region.lat;
-    const lng = this.props.region.lng;
-    litApi
-      .getLocations(lat, lng, radius)
-      .then(places => this.props.setPlaces(places.result))
-      .then(result => console.log(result))
-      .catch(error => console.log(error));
+    const { lat, lng } = this.props;
+
+    this.fetchPlaces({ lat, lng, radius });
+    // litApi
+    //   .getLocations(lat, lng, radius)
+    //   .then(places => this.props.setPlaces(places.result))
+    //   .then(result => console.log(result))
+    //   .catch(error => console.log(error));
   }
 
   render() {
+    //this.props.view === Views.MAP
     if (this.props.view === Views.MAP) {
-      let { region, places } = this.props;
+      let { region } = this.props;
+      let { places } = this.props.places;
       let regionLatLng = {
         latitude: region.lat,
         longitude: region.lng,
         latitudeDelta: region.latDelta,
         longitudeDelta: region.lngDelta
       };
+
+      const interpolations = places.map((place, index) => {
+        const inputRange = [
+          (index - 1) * PLACE_CARD_WIDTH,
+          index * PLACE_CARD_WIDTH,
+          (index + 1) * PLACE_CARD_WIDTH
+        ];
+
+        const fill = this.animation.interpolate({
+          inputRange,
+          outputRange: ["#FFA183", "#AD4545", "#FFA183"],
+          extrapolate: "clamp"
+        });
+
+        return { fill };
+      });
 
       return (
         <View
@@ -259,38 +358,80 @@ class ConnectedApp extends React.Component {
           }}
         >
           <MapView
-            region={regionLatLng}
+            initialRegion={regionLatLng}
             style={{
               flex: 1,
-              position: "absolute",
-              top: 0,
-              bottom: 0,
-              left: 0,
-              right: 0
+              flexDirection: "column"
             }}
             customMapStyle={litMapStyle}
             provider={PROVIDER_GOOGLE}
+            ref={map => (this.map = map)}
+            zoomEnabled={true}
+            minZoomLevel={15}
           >
-            <LitMarkers places={places} />
+            {places.map((place, index) => {
+              let latLng = {
+                latitude: place.location.lat,
+                longitude: place.location.lng
+              };
+
+              let { fill } = interpolations[index];
+
+              return (
+                <LitMarker
+                  LatLng={latLng}
+                  title={place.name}
+                  litness={place.litness}
+                  key={place.id}
+                  onPressCallout={() => {
+                    console.log("pressed");
+                  }}
+                  fill={fill}
+                />
+              );
+            })}
             <Marker coordinate={regionLatLng} title="user">
               <UserMarkerIcon />
             </Marker>
           </MapView>
-
-          <FlatList
+          <Animated.ScrollView
             horizontal={true}
-            data={places}
-            renderItem={({ item }) => (
-              <PlaceCard
-                key={item.id}
-                placeName={item.name}
-                placeAddress="123 F. Street chicago, IL"
-                placeDistance="4m away"
-                litScore={item.litness}
-                onPress={() => console.log("pressed!")}
-              />
+            snapToInterval={PLACE_CARD_WIDTH}
+            snapToAlignment="end"
+            style={styles.scrollView}
+            showsHorizontalScrollIndicator={false}
+            scrollEventThrottle={1}
+            snapToOffsets={places.map(
+              (place, index) => index * PLACE_CARD_WIDTH
             )}
-          />
+            decelerationRate="fast"
+            onScroll={Animated.event(
+              [
+                {
+                  nativeEvent: {
+                    contentOffset: {
+                      x: this.animation
+                    }
+                  }
+                }
+              ],
+              { useNativeDriver: false }
+            )}
+            {...this._panResponder.panHandlers}
+          >
+            {places.map((item, index) => {
+              return (
+                <PlaceCard
+                  key={item.id}
+                  placeName={item.name}
+                  placeAddress="123 F. Street chicago, IL"
+                  placeDistance="4m away"
+                  litScore={item.litness}
+                  onPress={() => console.log("pressed!")}
+                />
+              );
+            })}
+          </Animated.ScrollView>
         </View>
       );
     } else if (this.props.view === Views.LOGIN) {
@@ -301,7 +442,7 @@ class ConnectedApp extends React.Component {
 
   static get propTypes() {
     return {
-      places: PropTypes.array,
+      places: PropTypes.object,
       mapIsReady: PropTypes.func,
       region: PropTypes.object,
       setInfo: PropTypes.func,
@@ -310,7 +451,9 @@ class ConnectedApp extends React.Component {
       setToken: PropTypes.func,
       setView: PropTypes.func,
       token: PropTypes.string,
-      view: PropTypes.string
+      view: PropTypes.string,
+      lat: PropTypes.number,
+      lng: PropTypes.number
     };
   }
 }
@@ -324,6 +467,11 @@ const styles = StyleSheet.create({
   col: {
     flexDirection: "column",
     justifyContent: "space-between"
+  },
+  scrollView: {
+    position: "absolute",
+    left: 0,
+    right: 0
   }
 });
 

@@ -1,13 +1,14 @@
 /* eslint-disable no-unused-vars */
 import React from "React";
 import { Svg } from "expo";
+import PropTypes from "prop-types";
 
-function FireIcon() {
+function FireIcon({ height, width }) {
   const { Path } = Svg;
   return (
     <Svg
-      width="14"
-      height="13"
+      width={width}
+      height={height}
       viewBox="0 0 14 13"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -19,5 +20,8 @@ function FireIcon() {
     </Svg>
   );
 }
-
+FireIcon.defaultProps = {
+  height: 13,
+  width: 14
+};
 export default FireIcon;

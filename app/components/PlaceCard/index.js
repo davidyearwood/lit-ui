@@ -1,37 +1,30 @@
 /* eslint-disable no-unused-vars */
 import React from "react";
 import FireIcon from "../SVG/FireIcon";
-import { Text, View, StyleSheet } from "react-native";
+import { Text, View, StyleSheet, Dimensions, Animated } from "react-native";
 import LitButton from "../LitButton";
 import PropTypes from "prop-types";
 
+let { height, width } = Dimensions.get("window");
+
 function PlaceCard(props) {
   return (
-    <View
-      style={{
-        flex: 1,
-        flexDirection: "column",
-        justifyContent: "flex-end",
-        alignItems: "center"
-      }}
-    >
-      <View style={styles.placeCard}>
-        <Text style={styles.placeName}>{props.placeName}</Text>
-        <View style={[styles.placeRow, styles.centerHor]}>
-          <FireIcon />
-          <Text style={[styles.text, { marginLeft: 8.88 }]}>
-            {props.litScore}
-          </Text>
-        </View>
-        <View style={styles.placeRow}>
-          <Text style={[styles.text, { marginRight: 8.88 }]}>
-            {props.placeAddress}
-          </Text>
-          <Text style={styles.text}>{props.placeDistance}</Text>
-        </View>
-        <LitButton text="Check-in" />
+    <Animated.View style={[styles.placeCard, props.style]}>
+      <Text style={styles.placeName}>{props.placeName}</Text>
+      <View style={[styles.placeRow, styles.centerHor]}>
+        <FireIcon />
+        <Text style={[styles.text, { marginLeft: 8.88 }]}>
+          {props.litScore}
+        </Text>
       </View>
-    </View>
+      <View style={styles.placeRow}>
+        <Text style={[styles.text, { marginRight: 8.88 }]}>
+          {props.placeAddress}
+        </Text>
+        <Text style={styles.text}>{props.placeDistance}</Text>
+      </View>
+      <LitButton text="Check-in" />
+    </Animated.View>
   );
 }
 
@@ -39,15 +32,15 @@ PlaceCard.propTypes = {
   litScore: PropTypes.number,
   placeAddress: PropTypes.string,
   placeDistance: PropTypes.string,
-  placeName: PropTypes.string
+  placeName: PropTypes.string,
+  style: PropTypes.object
 };
 
 const placeCard = {
-  height: 160,
+  height: height * 0.25,
   backgroundColor: "#202020",
   flexDirection: "column",
-  width: 335,
-  marginBottom: 50,
+  width: width * 0.9,
   padding: 15,
   shadowColor: "#000",
   shadowOffset: { width: 0, height: 5 },

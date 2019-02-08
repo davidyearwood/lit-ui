@@ -14,6 +14,7 @@ function LitMarkers({ places, ...attrs }) {
         coordinate={LatLng}
         title={place.name}
         key={place.id}
+        litness={place.litness}
         {...attrs}
       />
     );
