@@ -1,45 +1,69 @@
-import React from 'react'; 
-import { View, TextInput, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons } from "@expo/vector-icons";
+import { Constants } from "expo";
+import PropTypes from "prop-types";
+import React, { Component } from "react";
+import { View, TextInput, StyleSheet } from "react-native";
 
-function SearchBar(props) {
-    return(
-        <View style={searchBarStyles.container}>
-            <Ionicons name="md-search" size={25} color="#333333" />
-            <TextInput style={searchBarStyles.searchBar} 
-                placeHolder="Try getting lit somewhere else?"
-                value={props.value}
-            />
-        </View>
-    ); 
+class SearchBar extends Component {
+  constructor(props) {
+    super(props);
+
+    this._onSearch = this._onSearch.bind(this);
+  }
+
+  _onSearch(event) {
+    const text = event.nativeEvent.text;
+    this.props.onSearch(text);
+  }
+
+  render() {
+    return (
+      <View style={searchBarStyles.container}>
+        <Ionicons name="md-search" size={25} color="#333333" />
+        <TextInput
+          style={searchBarStyles.searchBar}
+          placeholder="Try getting lit somewhere else?"
+          onSubmitEditing={this._onSearch}
+        />
+      </View>
+    );
+  }
 }
 
+SearchBar.propTypes = {
+  // Called when a new search is submitted. Passes submitted string to onSearch
+  onSearch: PropTypes.func.required
+};
+
 const searchBarStyles = StyleSheet.create({
-    container: {
-        flexDirection: 'row',
-        backgroundColor: '#FFFFFF',
-        height: 37,
-        width: 250,
-        alignItems: 'center',
-        borderRadius: 4,
-        paddingLeft: 10,
-        paddingTop: 7,
-        paddingBottom: 7,
-        shadowColor: "#000000",
-        shadowOffset: {
-            width: 0,
-            height: 4,
-        },
-        shadowOpacity: .75,
-        shadowRadius: 7.65,
-        elevation: 5,
+  container: {
+    alignItems: "center",
+    backgroundColor: "#FFFFFF",
+    borderRadius: 4,
+    elevation: 5,
+    flexDirection: "row",
+    height: 37,
+    left: "5%",
+    position: "absolute",
+    paddingBottom: 7,
+    paddingLeft: 10,
+    paddingTop: 7,
+    shadowColor: "#000000",
+    shadowOffset: {
+      width: 0,
+      height: 4
     },
-    searchBar: {
-        flex: 1,
-        backgroundColor: '#FFFFFF',
-        paddingLeft: 10, 
-        fontSize: 16
-    }
+    shadowOpacity: 0.75,
+    shadowRadius: 7.65,
+    top: Constants.statusBarHeight + 10,
+    width: "90%"
+  },
+  searchBar: {
+    backgroundColor: "#FFFFFF",
+    flex: 1,
+    fontSize: 16,
+    paddingLeft: 10
+  }
 });
 
 export default SearchBar;
