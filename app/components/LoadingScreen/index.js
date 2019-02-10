@@ -50,12 +50,25 @@ class LoadingScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      handler: null,
       text: randomQuote()
     };
   }
 
   componentDidMount() {
-    setInterval(() => this.setState({ text: randomQuote() }), 5000);
+    const handler = setInterval(
+      () => this.setState({ text: randomQuote() }),
+      5000
+    );
+    this.setState({ handler: handler });
+  }
+
+  componentWillUnmount() {
+    const handler = this.state.handler;
+    if (handler) {
+      clearInterval(handler);
+    }
+    this.setState({ handler: null });
   }
 
   render() {
