@@ -57,9 +57,10 @@ import SCearchBar from "./app/components/SearchBar";
 import SearchResult from "./app/components/SearchResult";
 import SettingButton from "./app/components/SettingButton";
 import UserMarkerIcon from "./app/components/SVG/UserMarkerIcon";
+import InstagramIcon from "./app/components/SVG/InstagramIcon";
 import store from "./app/stores";
 import { INSTAGRAM_ID } from "./credentials";
-
+import InstagramButton from "./app/components/InstagramLoginButton";
 const { height, width } = Dimensions.get("window");
 const PLACE_CARD_WIDTH = width * 0.9 + 30;
 TaskManager.defineTask(
@@ -94,7 +95,7 @@ const mapDispatchToProps = dispatch => ({
   setRegion: region => dispatch(setRegion(region)),
   setToken: token => dispatch(setToken(token)),
   setView: view => dispatch(setView(view)),
-  fetchPlaes: location => dispatch(fetchPlaces(location))
+  fetchPlaces: location => dispatch(fetchPlaces(location))
 });
 
 class ConnectedApp extends React.Component {
