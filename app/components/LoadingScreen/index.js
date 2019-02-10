@@ -4,10 +4,13 @@ import {
   StatusBar,
   StyleSheet,
   Text,
-  View
+  View,
+  Dimensions
 } from "react-native";
 import Logo from "../SVG/Logo.js";
 import { randomQuote } from "./phrases.js";
+
+const { width } = Dimensions.get("window");
 
 const styles = StyleSheet.create({
   loadingScreen: {
@@ -34,7 +37,7 @@ const styles = StyleSheet.create({
     fontWeight: "normal",
     marginTop: 30,
     textAlign: "center",
-    width: "80%"
+    width: width * 0.8
   },
   authorStyle: {
     color: "#fff",
@@ -42,7 +45,7 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
     marginTop: 15,
     textAlign: "right",
-    width: "80%"
+    width: width * 0.8
   }
 });
 
@@ -55,9 +58,15 @@ class LoadingScreen extends Component {
   }
 
   componentDidMount() {
-    setInterval(() => this.setState({ text: randomQuote() }), 5000);
+    this.randomQuoteTimer = setInterval(
+      () => this.setState({ text: randomQuote() }),
+      5000
+    );
   }
 
+  componentWillUnmount() {
+    clearTimeout(this.randomQuoteTimer);
+  }
   render() {
     const { quote, author } = this.state.text;
     return (
