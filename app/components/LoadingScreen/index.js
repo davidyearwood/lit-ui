@@ -5,7 +5,8 @@ import {
   StyleSheet,
   Text,
   View,
-  Dimensions
+  Dimensions,
+  Platform
 } from "react-native";
 import Logo from "../SVG/Logo.js";
 import { randomQuote } from "./phrases.js";
@@ -69,9 +70,11 @@ class LoadingScreen extends Component {
   }
   render() {
     const { quote, author } = this.state.text;
+
+    const spinnerSize = Platform.OS === "ios" ? "large" : 80;
     return (
       <View style={styles.loadingScreen}>
-        <ActivityIndicator size={80} color="#fff" />
+        <ActivityIndicator size={spinnerSize} color="#fff" />
         <Text style={styles.quoteStyle}>{quote}</Text>
         {author && <Text style={styles.authorStyle}>- {author}</Text>}
         <View style={styles.logo}>
