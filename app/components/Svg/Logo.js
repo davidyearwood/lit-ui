@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import { Svg } from "expo";
 
-function Logo({ width, height, fill }) {
+function Logo({ width, height, fill, styles }) {
   const { Path } = Svg;
   return (
     <Svg
@@ -11,6 +11,7 @@ function Logo({ width, height, fill }) {
       viewBox="0 0 160 124"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      style={styles}
     >
       <Path
         d="M153.889 94.3C152.868 95.167 151.945 96.0785 151.128 96.994C149.79 95.3071 148.13 93.5961 146.25 92C141.425 96.0955 138 101.432 138 104.65C138 110.366 142.925 115 149 115C155.075 115 160 110.366 160 104.65C160 102.257 157.447 97.3214 153.889 94.3V94.3ZM152.933 109.603C151.869 110.284 150.558 110.688 149.14 110.688C145.597 110.688 142.714 108.543 142.714 105.061C142.714 103.327 143.908 101.798 146.289 99.1875C146.629 99.546 151.142 104.818 151.142 104.818L154.021 101.814C154.225 102.121 154.41 102.422 154.575 102.711C155.918 105.055 155.351 108.055 152.933 109.603V109.603Z"
@@ -32,8 +33,9 @@ Logo.defaultProps = {
 
 Logo.propTypes = {
   width: PropTypes.number,
-  height: PropTypes.height,
-  fill: PropTypes.string
+  height: PropTypes.number,
+  fill: PropTypes.string,
+  styles: PropTypes.object
 };
 
 export default Logo;
